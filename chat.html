@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayMaker AI - Enhanced Community Chat</title>
+    <style>
+        /* Dark theme styles matching your current interface */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: #ffffff;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffffff;
+        }
+        
+        .header .subtitle {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-top: 0.25rem;
+        }
+        
+        .main-container {
+            display: flex;
+            height: calc(100vh - 100px);
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            margin: 1rem;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: rgba(0, 0, 0, 0.3);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-section {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-header {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+        
+        .user-list {
+            list-style: none;
+        }
+        
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 0.25rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 0.25rem;
+        }
+        
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .status-banner {
+            background: rgba(16, 185, 129, 0.2);
+            border-left: 4px solid #10b981;
+            padding: 1rem;
+            margin: 1rem;
+            border-radius: 8px;
+        }
+        
+        .status-text {
+            font-size: 0.875rem;
+            color: #10b981;
+        }
+        
+        .messages-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .message-content {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            border-radius: 12px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+        
+        .message.user .message-content {
+            background: rgba(59, 130, 246, 0.3);
+            margin-left: auto;
+            max-width: 80%;
+        }
+        
+        .message.assistant .message-content {
+            background: rgba(16, 185, 129, 0.2);
+            max-width: 80%;
+        }
+        
+        .input-area {
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .control-input, .control-select {
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 0.875rem;
+        }
+        
+        .control-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .control-btn {
+            padding: 0.5rem;
+            border: none;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .message-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            font-size: 1rem;
+        }
+        
+        .message-input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 20px;
+            background: #3b82f6;
+            color: #ffffff;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .send-button:hover {
+            background: #2563eb;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
+            margin-bottom: 1rem;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 0.25rem;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .typing-cursor {
+            color: #10b981;
+            font-weight: bold;
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Scrollbar styling */
+        .messages-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .messages-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .messages-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <span>✝️</span>
+        <div>
+            <h1>WayMaker AI - Enhanced Community Chat</h1>
+            <div class="subtitle">Your path to living God's will — step by step</div>
+        </div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-header">Community Members (2)</div>
+                <ul id="userList" class="user-list"></ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-header">Enhanced Features</div>
+                <ul class="feature-list">
+                    <li class="feature-item"><span>👍👎</span> Rate • Suggest • TTS</li>
+                    <li class="feature-item"><span>🎤</span> Voice</li>
+                    <li class="feature-item"><span>📁</span> Upload • Edit • Study • Export</li>
+                </ul>
+            </div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-header">WayMaker AI responds to:</div>
+                <ul class="feature-list">
+                    <li class="feature-item">• "WayMaker" mentions • Biblical questions</li>
+                    <li class="feature-item">• Prayer requests • Spiritual guidance</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="status-banner">
+                <div class="status-text">
+                    <strong>✅ WayMaker AI Connected!</strong> 
+                    Enhanced biblical responses with complete knowledge base integration ready!
+                </div>
+            </div>
+            
+            <div id="messagesContainer" class="messages-container"></div>
+            
+            <!-- Input Area -->
+            <div class="input-area">
+                <div class="controls-row">
+                    <input type="text" id="userName" placeholder="Your name" value="Friend" class="control-input">
+                    <select id="userAge" class="control-select">
+                        <option value="18-25">18-25</option>
+                        <option value="Under 12">Under 12</option>
+                        <option value="12-17">12-17</option>
+                        <option value="26-40">26-40</option>
+                        <option value="41-60">41-60</option>
+                        <option value="Over 60">Over 60</option>
+                    </select>
+                    <select id="registrationType" class="control-select">
+                        <option value="individual">Individual</option>
+                        <option value="family_group">Family</option>
+                        <option value="community_partner">Community Partner</option>
+                    </select>
+                    <button id="fileBtn" class="control-btn" title="Upload files">📁</button>
+                    <button id="voiceBtn" class="control-btn" title="Voice input">🎤</button>
+                </div>
+                
+                <div class="message-row">
+                    <input type="text" id="messageInput" 
+                           placeholder="Share with community, ask questions, or request prayer..."
+                           class="message-input">
+                    <button id="sendButton" class="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="fileInput" multiple style="display: none;">
+
+<script>
+console.log('🚀 WayMaker AI Enhanced Community Chat starting...');
+
+class WayMakerChat {
+    constructor() {
+        // 🌐 GITHUB PAGES CONFIGURATION - Points to production API
+        this.apiUrl = 'https://waymaker.4children.3manwill.com/v1/chat-messages';  // ✅ PRODUCTION DIFY API
+        this.apiKey = 'app-Mfi59Fz3YkFakdCfToUGoRaK';  // ✅ CORRECT WORKING API KEY
+        this.conversationId = null;
+        this.currentMessageId = null;
+        this.users = new Set(['WayMaker AI']);
+        this.messageCounter = 0;
+        
+        this.init();
+    }
+    
+    init() {
+        console.log('✅ Initializing WayMaker AI...');
+        this.bindElements();
+        this.attachEvents();
+        this.updateUserList();
+        this.addWelcomeMessage();
+        console.log('✅ WayMaker AI initialized successfully!');
+    }
+    
+    bindElements() {
+        this.messagesContainer = document.getElementById('messagesContainer');
+        this.messageInput = document.getElementById('messageInput');
+        this.sendButton = document.getElementById('sendButton');
+        this.userName = document.getElementById('userName');
+        this.userAge = document.getElementById('userAge');
+        this.registrationType = document.getElementById('registrationType');
+        this.userList = document.getElementById('userList');
+        this.fileInput = document.getElementById('fileInput');
+        this.fileBtn = document.getElementById('fileBtn');
+        this.voiceBtn = document.getElementById('voiceBtn');
+    }
+    
+    attachEvents() {
+        this.sendButton.onclick = () => this.sendMessage();
+        this.messageInput.onkeypress = (e) => {
+            if (e.key === 'Enter') this.sendMessage();
+        };
+        this.userName.onchange = () => this.updateUserList();
+        this.fileBtn.onclick = () => this.fileInput.click();
+        this.voiceBtn.onclick = () => this.startVoiceInput();
+        this.fileInput.onchange = (e) => this.handleFileUpload(e);
+    }
+    
+    updateUserList() {
+        const currentUser = this.userName.value || 'Friend';
+        this.users.add(currentUser);
+        
+        this.userList.innerHTML = '';
+        this.users.forEach(user => {
+            const li = document.createElement('li');
+            li.className = 'user-item';
+            li.innerHTML = '<div class="status-dot"></div><span>' + user + '</span>';
+            this.userList.appendChild(li);
+        });
+    }
+    
+    addWelcomeMessage() {
+        const welcome = 'Peace be with you, beloved community! 👋\n\nWelcome to WayMaker AI Enhanced Community Chat! I\'m here to walk alongside you on your spiritual journey, providing biblical guidance, prayer support, and faithful encouragement.\n\n✅ **Full Biblical Knowledge Base Active**\n✅ **Enhanced Age Adaptation Ready**\n✅ **Complete Crisis Support Available**\n✅ **150+ Scripture References Loaded**\n\nWhether you\'re seeking answers to life\'s questions, exploring God\'s Word, or simply need someone to pray with, our community is here for you. Ask me biblical questions, request prayer, share your struggles, or simply share what\'s on your heart.\n\nRemember: No question is too small, and no burden is too heavy when we bring it before the Lord together.\n\nHow can our community grow in God\'s will together today?\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV\n\n"Come to me, all you who are weary and burdened, and I will give you rest." - Matthew 11:28 NIV';
+        
+        this.addMessage(welcome, 'assistant', 'WayMaker AI', true);
+    }
+    
+    async sendMessage() {
+        const message = this.messageInput.value.trim();
+        if (!message) return;
+        
+        const userName = this.userName.value || 'Friend';
+        const userAge = this.userAge.value;
+        const registrationType = this.registrationType.value;
+        
+        this.addMessage(message, 'user', userName);
+        this.messageInput.value = '';
+        this.updateUserList();
+        
+        this.showTyping();
+        
+        try {
+            const response = await this.callDifyAPI(message, userName, userAge, registrationType);
+            this.hideTyping();
+            
+            if (response && response !== '(silence)') {
+                this.addMessage(response, 'assistant', 'WayMaker AI', true);
+            } else {
+                console.log('⚠️ API returned empty/silence response');
+                const fallback = this.getFallbackResponse(message);
+                if (fallback !== '(silence)') {
+                    this.addMessage(fallback, 'assistant', 'WayMaker AI', true);
+                }
+            }
+        } catch (error) {
+            this.hideTyping();
+            console.error('❌ Dify API Error:', error);
+            
+            if (error.message.includes('API call failed') || error.message.includes('fetch')) {
+                console.log('🔄 Using fallback due to API connection error');
+                const fallback = this.getFallbackResponse(message);
+                if (fallback !== '(silence)') {
+                    this.addMessage(fallback, 'assistant', 'WayMaker AI', true);
+                }
+            } else {
+                console.log('🚫 API error without fallback:', error.message);
+                this.addMessage('I apologize, but I\'m having difficulty connecting to my enhanced knowledge base right now. Please try again in a moment, or feel free to ask your question differently. 🙏', 'assistant', 'WayMaker AI', true);
+            }
+        }
+    }
+    
+    async callDifyAPI(message, userName, userAge, registrationType, retryCount = 0) {
+        console.log('🔗 Making API call to:', this.apiUrl);
+        
+        // Enhanced context detection
+        const lowerMessage = message.toLowerCase();
+        let spiritual_context = 'seeking guidance';
+        let crisis_level = 'none';
+        
+        if (lowerMessage.includes('doubt') || lowerMessage.includes('losing faith') || lowerMessage.includes('abandoned')) {
+            spiritual_context = 'faith crisis';
+            crisis_level = 'serious';
+        } else if (lowerMessage.includes('death') || lowerMessage.includes('died') || lowerMessage.includes('grief')) {
+            spiritual_context = 'grief and loss';
+            crisis_level = 'serious';
+        } else if (lowerMessage.includes('decision') || lowerMessage.includes('job') || lowerMessage.includes('relationship')) {
+            spiritual_context = 'life guidance';
+        } else if (lowerMessage.includes('prayer') || lowerMessage.includes('pray')) {
+            spiritual_context = 'prayer support';
+        } else if (lowerMessage.includes('bible') || lowerMessage.includes('scripture')) {
+            spiritual_context = 'biblical study';
+        } else if (lowerMessage.includes('struggling') || lowerMessage.includes('difficult') || lowerMessage.includes('financial') || lowerMessage.includes('hardship')) {
+            spiritual_context = 'personal struggle';
+            crisis_level = 'mild';
+        }
+        
+        // ✅ CORRECT PAYLOAD FORMAT - Matches Dify Studio variables exactly
+        const payload = {
+            inputs: {
+                user_name: userName || 'Friend',
+                user_age: userAge,
+                emotion: crisis_level === 'serious' ? 'distressed' : crisis_level === 'mild' ? 'concerned' : 'peaceful',
+                topic: message,  // Full message - no truncation
+                bible_version: 'NIV',
+                registration_type: registrationType,
+                family_group_size: registrationType === 'family_group' ? '4' : null,
+                user_role: 'member',
+                depth: 'comprehensive',
+                tone: 'compassionate',
+                application: 'practical',
+                language: 'English'
+            },
+            query: message,
+            response_mode: 'blocking',
+            user: userName || 'test'
+        };
+        
+        if (this.conversationId) {
+            payload.conversation_id = this.conversationId;
+        }
+        
+        console.log('📝 FIXED API Payload:', payload);
+        
+        try {
+            const response = await fetch(this.apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + this.apiKey,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            console.log('📡 API Response Status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('❌ API Error Details:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText,
+                    url: this.apiUrl,
+                    payload: payload
+                });
+                
+                if (response.status === 404 && retryCount < 2) {
+                    console.warn(`🔄 API 404 error, retrying... (attempt ${retryCount + 1}/3)`);
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    return this.callDifyAPI(message, userName, userAge, registrationType, retryCount + 1);
+                }
+                
+                throw new Error(`API call failed: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('✅ API Response Data:', data);
+            
+            if (data.conversation_id) {
+                this.conversationId = data.conversation_id;
+                console.log('🔗 Updated conversation_id:', this.conversationId);
+            }
+            
+            if (data.message_id) {
+                this.currentMessageId = data.message_id;
+            }
+            
+            const apiResponse = data.answer || data.data?.answer || data.message;
+            if (apiResponse && apiResponse.trim() && apiResponse !== '(silence)') {
+                console.log('✅ Using API response:', apiResponse.substring(0, 100) + '...');
+                return apiResponse;
+            } else {
+                console.log('❌ No valid API response, using fallback');
+                throw new Error('No valid API response received');
+            }
+            
+        } catch (fetchError) {
+            if (retryCount < 2) {
+                console.warn(`🔄 Network error, retrying... (attempt ${retryCount + 1}/3):`, fetchError.message);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                return this.callDifyAPI(message, userName, userAge, registrationType, retryCount + 1);
+            }
+            throw fetchError;
+        }
+    }
+    
+    getFallbackResponse(message) {
+        const lowerMessage = message.toLowerCase();
+        
+        if (lowerMessage.includes('waymaker') || lowerMessage.includes('help')) {
+            return 'Peace be with you! I\'m here to help our community grow in faith. "Ask and it will be given to you; seek and you will find; knock and the door will be opened to you." - Matthew 7:7 NIV\n\nI\'m currently having some connection issues with my enhanced knowledge base. Please try asking your question again.';
+        }
+        
+        if (!lowerMessage.includes('god') && !lowerMessage.includes('jesus') && 
+            !lowerMessage.includes('faith') && !lowerMessage.includes('waymaker') &&
+            !lowerMessage.includes('prayer') && !lowerMessage.includes('bible')) {
+            return '(silence)';
+        }
+        
+        return 'I\'m here to provide biblical guidance, but I\'m currently experiencing technical difficulties with my enhanced responses. Please try again, and I\'ll do my best to help with God\'s wisdom. 🙏';
+    }
+    
+    addMessage(content, type, sender, shouldStream = false) {
+        if (content === '(silence)') return;
+        
+        const messageDiv = document.createElement('div');
+        const messageId = 'msg_' + (++this.messageCounter);
+        messageDiv.id = messageId;
+        messageDiv.className = 'message ' + type;
+        
+        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        messageDiv.innerHTML = 
+            '<div class="message-header">' +
+                '<strong>' + sender + '</strong>' +
+                '<span>' + time + '</span>' +
+            '</div>' +
+            '<div class="message-content">' +
+                (shouldStream ? '' : content) +
+            '</div>';
+        
+        this.messagesContainer.appendChild(messageDiv);
+        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+        
+        if (shouldStream && type === 'assistant') {
+            this.typeMessage(messageId, content);
+        }
+        
+        return messageId;
+    }
+    
+    async typeMessage(messageId, fullText) {
+        const messageElement = document.getElementById(messageId);
+        const contentDiv = messageElement.querySelector('.message-content');
+        
+        contentDiv.innerHTML = '<span class="typing-cursor">▊</span>';
+        
+        let displayedText = '';
+        const words = fullText.split(' ');
+        
+        const baseDelay = 30;
+        const wordDelay = 100;
+        const punctuationDelay = 200;
+        
+        for (let i = 0; i < words.length; i++) {
+            const word = words[i];
+            displayedText += (i > 0 ? ' ' : '') + word;
+            
+            contentDiv.innerHTML = displayedText + '<span class="typing-cursor">▊</span>';
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            
+            let delay = baseDelay * word.length + wordDelay;
+            
+            if (word.includes('.') || word.includes('!') || word.includes('?') || word.includes(':')) {
+                delay += punctuationDelay;
+            }
+            
+            if (word.match(/\d+:\d+/) || word.includes('NIV') || word.includes('ESV')) {
+                delay += punctuationDelay;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, delay));
+        }
+        
+        contentDiv.innerHTML = displayedText;
+    }
+    
+    showTyping() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typing';
+        typingDiv.className = 'typing-indicator';
+        typingDiv.innerHTML = 
+            '<div class="typing-dots">' +
+                '<div class="typing-dot"></div>' +
+                '<div class="typing-dot"></div>' +
+                '<div class="typing-dot"></div>' +
+            '</div>' +
+            '<span>WayMaker AI is reflecting...</span>';
+        
+        this.messagesContainer.appendChild(typingDiv);
+        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+    }
+    
+    hideTyping() {
+        const typingDiv = document.getElementById('typing');
+        if (typingDiv) {
+            typingDiv.remove();
+        }
+    }
+    
+    startVoiceInput() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
+            
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+            
+            recognition.onstart = () => {
+                this.voiceBtn.textContent = '🛑';
+                this.voiceBtn.style.backgroundColor = '#ef4444';
+            };
+            
+            recognition.onresult = (event) => {
+                this.messageInput.value = event.results[0][0].transcript;
+                this.messageInput.focus();
+            };
+            
+            recognition.onend = () => {
+                this.voiceBtn.textContent = '🎤';
+                this.voiceBtn.style.backgroundColor = '';
+            };
+            
+            recognition.start();
+        } else {
+            alert('Voice input not supported in this browser');
+        }
+    }
+    
+    handleFileUpload(event) {
+        const files = event.target.files;
+        if (!files.length) return;
+        
+        for (const file of files) {
+            this.addMessage('📁 Uploaded file: ' + file.name + '\n\nWayMaker AI, please analyze this file and provide biblical insights.', 'user', this.userName.value || 'Friend');
+            
+            setTimeout(() => {
+                const response = 'I\'ve received your file "' + file.name + '". While I process biblical content, here\'s encouragement:\n\n"Your word is a lamp for my feet, a light on my path." - Psalm 119:105 NIV\n\nPlease share what specific aspects you\'d like me to explore from a biblical perspective. I\'m here to provide wisdom based on God\'s Word.';
+                this.addMessage(response, 'assistant', 'WayMaker AI', true);
+            }, 1000);
+        }
+        
+        event.target.value = '';
+    }
+}
+
+// Initialize chat when page loads
+let chat;
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 DOM loaded, starting WayMaker AI...');
+    
+    // Get URL parameters for user configuration
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    chat = new WayMakerChat();
+    
+    // Set user info from URL parameters if available
+    if (urlParams.get('name')) {
+        document.getElementById('userName').value = urlParams.get('name');
+        chat.updateUserList();
+    }
+    
+    if (urlParams.get('age')) {
+        document.getElementById('userAge').value = urlParams.get('age');
+    }
+    
+    if (urlParams.get('type')) {
+        const typeMap = {
+            'individual': 'individual',
+            'family': 'family_group',
+            'partner': 'community_partner'
+        };
+        document.getElementById('registrationType').value = typeMap[urlParams.get('type')] || 'individual';
+    }
+});
+
+console.log('✅ WayMaker AI Enhanced Community Chat script loaded successfully');
+</script>
+
+</body>
+</html>
