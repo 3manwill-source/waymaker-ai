@@ -1,0 +1,24 @@
+plugins:
+  - jekyll-optional-front-matter
+  - jekyll-readme-index
+  - jekyll-default-layout
+  - jekyll-titles-from-headings
+
+# GitHub Pages settings
+repository: 3manwill-source/waymaker-ai
+url: "https://3manwill-source.github.io"
+baseurl: "/waymaker-ai"
+
+# Site settings
+title: "WayMaker AI"
+description: "Your path to living God's will — step by step"
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+# Exclude files
+exclude:
+  - README.md
+  - .gitignore
+  - _config.yml
