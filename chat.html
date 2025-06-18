@@ -4,263 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WayMaker AI - Enhanced Community Chat</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Supabase Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        /* Dark theme styles matching your current interface */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
-            color: #ffffff;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .header {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .header h1 {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #ffffff;
-        }
-        
-        .header .subtitle {
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.8);
-            margin-top: 0.25rem;
-        }
-        
-        .main-container {
-            display: flex;
-            height: calc(100vh - 100px);
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(20px);
-            margin: 1rem;
-            border-radius: 12px;
-            overflow: hidden;
-        }
-        
-        .sidebar {
-            width: 280px;
-            background: rgba(0, 0, 0, 0.3);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar-section {
-            padding: 1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .sidebar-header {
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: #ffffff;
-        }
-        
-        .user-list {
-            list-style: none;
-        }
-        
-        .user-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.9);
-            margin-bottom: 0.25rem;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-        }
-        
-        .feature-list {
-            list-style: none;
-        }
-        
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-bottom: 0.25rem;
-        }
-        
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .status-banner {
-            background: rgba(16, 185, 129, 0.2);
-            border-left: 4px solid #10b981;
-            padding: 1rem;
-            margin: 1rem;
-            border-radius: 8px;
-        }
-        
-        .status-text {
-            font-size: 0.875rem;
-            color: #10b981;
-        }
-        
-        .messages-container {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-        }
-        
-        .message {
-            margin-bottom: 1rem;
-        }
-        
-        .message-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.6);
-        }
-        
-        .message-content {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 12px;
-            white-space: pre-wrap;
-            line-height: 1.5;
-        }
-        
-        .message.user .message-content {
-            background: rgba(59, 130, 246, 0.3);
-            margin-left: auto;
-            max-width: 80%;
-        }
-        
-        .message.assistant .message-content {
-            background: rgba(16, 185, 129, 0.2);
-            max-width: 80%;
-        }
-        
-        .input-area {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-        }
-        
-        .controls-row {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.75rem;
-        }
-        
-        .control-input, .control-select {
-            padding: 0.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            font-size: 0.875rem;
-        }
-        
-        .control-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .control-btn {
-            padding: 0.5rem;
-            border: none;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        
-        .control-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        .message-row {
-            display: flex;
-            gap: 0.5rem;
-        }
-        
-        .message-input {
-            flex: 1;
-            padding: 0.75rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-            font-size: 1rem;
-        }
-        
-        .message-input::placeholder {
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
-        .send-button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 20px;
-            background: #3b82f6;
-            color: #ffffff;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 1rem;
-        }
-        
-        .send-button:hover {
-            background: #2563eb;
-        }
-        
-        .typing-indicator {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: rgba(255, 255, 255, 0.6);
-            font-style: italic;
-            margin-bottom: 1rem;
-        }
-        
-        .typing-dots {
-            display: flex;
-            gap: 0.25rem;
-        }
-        
-        .typing-dot {
-            width: 6px;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.6);
-            border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
-        }
-        
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
-        
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0); }
-            40% { transform: scale(1); }
+        /* Compact message styling */
+        .message:hover .message-actions {
+            opacity: 1 !important;
         }
         
         .typing-cursor {
-            color: #10b981;
+            color: #3b82f6;
             font-weight: bold;
             animation: blink 1s infinite;
         }
@@ -270,138 +24,313 @@
             51%, 100% { opacity: 0; }
         }
         
-        /* Scrollbar styling */
-        .messages-container::-webkit-scrollbar {
-            width: 6px;
+        .message-content {
+            transition: transform 0.2s ease;
         }
         
-        .messages-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
+        .user-badge {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            font-size: 0.65rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.375rem;
+            font-weight: bold;
         }
         
-        .messages-container::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
+        .sidebar-section {
+            background: #1f2937;
+            border: 1px solid #374151;
+        }
+        
+        .compact-button {
+            background: #374151;
+            color: #d1d5db;
+            transition: all 0.2s ease;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .compact-button:hover {
+            background: #4b5563;
+            color: #f9fafb;
+        }
+        
+        .compact-button.prayer { background: #7c3aed; color: white; }
+        .compact-button.prayer:hover { background: #6d28d9; }
+        .compact-button.verse { background: #059669; color: white; }
+        .compact-button.verse:hover { background: #047857; }
+        .compact-button.export { background: #2563eb; color: white; }
+        .compact-button.export:hover { background: #1d4ed8; }
+        .compact-button.exit { background: #dc2626; color: white; }
+        .compact-button.exit:hover { background: #b91c1c; }
+        .compact-button.new-session { background: #d97706; color: white; }
+        .compact-button.new-session:hover { background: #b45309; }
+        
+        .history-item {
+            background: #374151;
+            color: #d1d5db;
+            transition: all 0.2s ease;
+            font-size: 0.7rem;
+            padding: 0.25rem;
+            cursor: pointer;
+        }
+        
+        .history-item:hover {
+            background: #4b5563;
+        }
+        
+        #historyList::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        #historyList::-webkit-scrollbar-track {
+            background: #374151;
+            border-radius: 2px;
+        }
+        
+        #historyList::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 2px;
+        }
+        
+        .chat-input {
+            background: #374151;
+            border: 2px solid #4b5563;
+            color: #f9fafb;
+            font-size: 0.875rem;
+        }
+        
+        .chat-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+            outline: none;
+        }
+
+        .compact-message {
+            font-size: 0.8rem;
+            line-height: 1.3;
+        }
+
+        .compact-user-list {
+            font-size: 0.7rem;
+        }
+
+        .top-action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
         }
     </style>
 </head>
-<body>
-    <!-- Header -->
-    <div class="header">
-        <span>✝️</span>
-        <div>
-            <h1>WayMaker AI - Enhanced Community Chat</h1>
-            <div class="subtitle">Your path to living God's will — step by step</div>
+<body class="bg-gray-900 min-h-screen">
+    
+    <!-- Enhanced Header with User Info and Actions -->
+    <div class="bg-gray-800 border-b border-gray-700 p-3">
+        <div class="flex justify-between items-start">
+            <div class="flex-1">
+                <h1 class="text-white text-xl font-bold flex items-center gap-2 mb-2">
+                    ✝️ WayMaker AI - Enhanced Community Chat
+                    <span class="text-sm text-gray-300 font-normal">Your path to living God's will — step by step</span>
+                </h1>
+                
+                <!-- Action Buttons in Header -->
+                <div class="top-action-buttons">
+                    <button id="prayerBtn" class="compact-button prayer" title="Prayer request">🙏 Prayer</button>
+                    <button id="verseBtn" class="compact-button verse" title="Bible verse lookup">📖 Verse</button>
+                    <button id="exportBtn" class="compact-button export" title="Export chat">💾 Export</button>
+                    <button id="newSessionBtn" class="compact-button new-session" title="New session">🔄 New</button>
+                    <button id="exitChatBtn" class="compact-button exit" title="Exit chat">🚪 Exit</button>
+                </div>
+            </div>
+            
+            <div class="text-right">
+                <div class="text-white font-semibold text-sm" id="userDisplay">Welcome, Friend!</div>
+                <div class="flex gap-1 mt-1">
+                    <span class="user-badge" id="userTypeBadge">Individual</span>
+                    <span class="user-badge" id="accessTierBadge">Basic</span>
+                    <button id="headerExitBtn" class="user-badge bg-red-500 hover:bg-red-600 cursor-pointer" title="Exit">🚪</button>
+                </div>
+                <div class="text-gray-400 text-xs mt-1">
+                    <span id="sessionInfo">Session-based (No data stored)</span>
+                </div>
+            </div>
         </div>
     </div>
     
     <!-- Main Container -->
-    <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-header">Community Members (2)</div>
-                <ul id="userList" class="user-list"></ul>
+    <div class="flex" style="height: calc(100vh - 85px);">
+        
+        <!-- Compact Sidebar -->
+        <div class="w-64 bg-gray-800 border-r border-gray-700 flex flex-col">
+            
+            <!-- Community Members -->
+            <div class="sidebar-section m-2 rounded-lg">
+                <div class="p-2 border-b border-gray-600">
+                    <h3 class="font-semibold text-white mb-1 text-sm">Community Members</h3>
+                    <ul id="userList" class="space-y-0.5 compact-user-list"></ul>
+                </div>
             </div>
             
-            <div class="sidebar-section">
-                <div class="sidebar-header">Enhanced Features</div>
-                <ul class="feature-list">
-                    <li class="feature-item"><span>👍👎</span> Rate • Suggest • TTS</li>
-                    <li class="feature-item"><span>🎤</span> Voice</li>
-                    <li class="feature-item"><span>📁</span> Upload • Edit • Study • Export</li>
-                </ul>
+            <!-- Enhanced Features -->
+            <div class="sidebar-section m-2 rounded-lg">
+                <div class="p-2 border-b border-gray-600">
+                    <h4 class="font-semibold text-white mb-1 text-sm">Enhanced Features</h4>
+                    <ul class="text-xs text-gray-300 space-y-0.5">
+                        <li>👍👎 Rate • ❓ Suggest • 🔊 TTS • 🎤 Voice</li>
+                        <li>📁 Upload • ✏️ Edit • 📖 Study • 🚪 Exit</li>
+                    </ul>
+                </div>
             </div>
             
-            <div class="sidebar-section">
-                <div class="sidebar-header">WayMaker AI responds to:</div>
-                <ul class="feature-list">
-                    <li class="feature-item">• "WayMaker" mentions • Biblical questions</li>
-                    <li class="feature-item">• Prayer requests • Spiritual guidance</li>
-                </ul>
+            <!-- WayMaker AI Triggers -->
+            <div class="sidebar-section m-2 rounded-lg">
+                <div class="p-2 border-b border-gray-600">
+                    <h4 class="font-semibold text-white mb-1 text-sm">WayMaker AI responds to:</h4>
+                    <ul class="text-xs text-gray-300 space-y-0.5">
+                        <li>• "WayMaker" mentions • Biblical questions</li>
+                        <li>• Prayer requests • Spiritual guidance</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Compact History Section -->
+            <div class="sidebar-section m-2 rounded-lg flex-1" style="min-height: 200px;">
+                <div class="p-2 border-b border-gray-600">
+                    <h4 class="font-semibold text-white mb-2 flex items-center gap-1 text-sm">📜 History</h4>
+                    <div class="space-y-1 overflow-y-auto" style="max-height: 180px;" id="historyList">
+                        <!-- Dynamic history items -->
+                    </div>
+                </div>
             </div>
         </div>
         
         <!-- Chat Area -->
-        <div class="chat-area">
-            <div class="status-banner">
-                <div class="status-text">
-                    <strong>✅ WayMaker AI Connected!</strong> 
-                    Enhanced biblical responses with complete knowledge base integration ready!
-                </div>
+        <div class="flex-1 flex flex-col bg-gray-900">
+            <!-- Compact Welcome Banner -->
+            <div class="bg-blue-900/20 border-l-4 border-blue-400 p-2 m-2 rounded-r-lg">
+                <p class="text-xs text-blue-300">
+                    <strong>Enhanced Community Chat!</strong> 
+                    <span id="welcomeMessage">Real-time biblical guidance with Supabase integration!</span>
+                </p>
             </div>
             
-            <div id="messagesContainer" class="messages-container"></div>
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
             
-            <!-- Input Area -->
-            <div class="input-area">
-                <div class="controls-row">
-                    <input type="text" id="userName" placeholder="Your name" value="Friend" class="control-input">
-                    <select id="userAge" class="control-select">
-                        <option value="18-25">18-25</option>
-                        <option value="Under 12">Under 12</option>
-                        <option value="12-17">12-17</option>
-                        <option value="26-40">26-40</option>
-                        <option value="41-60">41-60</option>
-                        <option value="Over 60">Over 60</option>
-                    </select>
-                    <select id="registrationType" class="control-select">
-                        <option value="individual">Individual</option>
-                        <option value="family_group">Family</option>
-                        <option value="community_partner">Community Partner</option>
-                    </select>
-                    <button id="fileBtn" class="control-btn" title="Upload files">📁</button>
-                    <button id="voiceBtn" class="control-btn" title="Voice input">🎤</button>
+            <!-- Compact Input Area -->
+            <div class="border-t border-gray-700 bg-gray-800 p-2">
+                <div class="flex gap-1 mb-2">
+                    <div class="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300" id="userInfoDisplay">
+                        Loading session info...
+                    </div>
+                    <input type="file" id="fileInput" multiple class="hidden">
+                    <button id="fileBtn" class="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs border-none cursor-pointer" title="Upload files">📁</button>
+                    <button id="voiceBtn" class="px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs border-none cursor-pointer" title="Voice input">🎤</button>
                 </div>
                 
-                <div class="message-row">
+                <div class="flex gap-2">
                     <input type="text" id="messageInput" 
                            placeholder="Share with community, ask questions, or request prayer..."
-                           class="message-input">
-                    <button id="sendButton" class="send-button">Send</button>
+                           class="chat-input flex-1 px-3 py-2 rounded-full outline-none">
+                    <button id="sendButton" 
+                            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-full font-medium text-sm border-none cursor-pointer">
+                        Send
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <input type="file" id="fileInput" multiple style="display: none;">
-
 <script>
 console.log('🚀 WayMaker AI Enhanced Community Chat starting...');
 
-class WayMakerChat {
+class WayMakerGroupChat {
     constructor() {
-        // 🌐 GITHUB PAGES CONFIGURATION - Points to production API
-        this.apiUrl = 'https://waymaker.4children.3manwill.com/v1/chat-messages';  // ✅ PRODUCTION DIFY API
-        this.apiKey = 'app-Mfi59Fz3YkFakdCfToUGoRaK';  // ✅ CORRECT WORKING API KEY
+        this.apiUrl = 'https://waymaker.4children.3manwill.com/v1/chat-messages';
+        this.apiKey = 'app-m5aIR47z2inlYEPWEGS5ANJg';
         this.conversationId = null;
         this.currentMessageId = null;
-        this.users = new Set(['WayMaker AI']);
         this.messageCounter = 0;
         
+        // Supabase Real-time system
+        this.supabaseUrl = 'https://eoreanpxurhjsvihjzxv.supabase.co';
+        this.supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcmVhbnB4dXJoanN2aWhqenh2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDk4NTMwNjQsImV4cCI6MjA2NTQyOTA2NH0.IVClvbT2NhUyx_XH02bmJNA0fIo4Taf13Y-7oCY-SZI';
+        this.supabase = null;
+        this.presenceChannel = null;
+        this.messagesChannel = null;
+        this.activeUsers = [];
+        
+        // History system
+        this.historyCategories = {
+            prayer: [], bible_study: [], spiritual_guidance: [],
+            community_fellowship: [], crisis_support: [], youth_family: []
+        };
+        
+        this.userInfo = this.extractUserInfoFromURL();
         this.init();
     }
     
+    extractUserInfoFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return {
+            name: urlParams.get('name') || 'Friend',
+            age: urlParams.get('age') || '18-25',
+            language: urlParams.get('language') || 'English',
+            type: urlParams.get('type') || 'individual',
+            access: urlParams.get('access') || 'basic',
+            familySize: urlParams.get('family_size') || null,
+            referralCode: urlParams.get('referral') || null
+        };
+    }
+    
     init() {
-        console.log('✅ Initializing WayMaker AI...');
+        console.log('✅ Initializing enhanced group chat...');
+        this.updateUserInterface();
         this.bindElements();
         this.attachEvents();
-        this.updateUserList();
+        this.initializeSupabase();
+        this.loadHistoryCategories();
+        this.updateHistoryDisplay();
         this.addWelcomeMessage();
-        console.log('✅ WayMaker AI initialized successfully!');
+        console.log('✅ Enhanced group chat initialized successfully!');
+    }
+    
+    updateUserInterface() {
+        document.getElementById('userDisplay').textContent = `Welcome, ${this.userInfo.name}!`;
+        document.getElementById('userTypeBadge').textContent = this.capitalizeFirst(this.userInfo.type.replace('_', ' '));
+        document.getElementById('accessTierBadge').textContent = this.capitalizeFirst(this.userInfo.access);
+        
+        const sessionInfo = `${this.userInfo.age} • ${this.userInfo.language}`;
+        document.getElementById('sessionInfo').textContent = sessionInfo;
+        
+        const userInfoDisplay = document.getElementById('userInfoDisplay');
+        userInfoDisplay.textContent = `${this.userInfo.name} (${this.userInfo.age}, ${this.capitalizeFirst(this.userInfo.type.replace('_', ' '))})`;
+        
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        welcomeMessage.textContent = `Real-time biblical guidance with enhanced features!`;
+    }
+    
+    capitalizeFirst(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
     
     bindElements() {
         this.messagesContainer = document.getElementById('messagesContainer');
         this.messageInput = document.getElementById('messageInput');
         this.sendButton = document.getElementById('sendButton');
-        this.userName = document.getElementById('userName');
-        this.userAge = document.getElementById('userAge');
-        this.registrationType = document.getElementById('registrationType');
         this.userList = document.getElementById('userList');
+        this.historyList = document.getElementById('historyList');
         this.fileInput = document.getElementById('fileInput');
         this.fileBtn = document.getElementById('fileBtn');
         this.voiceBtn = document.getElementById('voiceBtn');
+        this.prayerBtn = document.getElementById('prayerBtn');
+        this.verseBtn = document.getElementById('verseBtn');
+        this.exportBtn = document.getElementById('exportBtn');
+        this.newSessionBtn = document.getElementById('newSessionBtn');
+        this.exitChatBtn = document.getElementById('exitChatBtn');
+        this.headerExitBtn = document.getElementById('headerExitBtn');
     }
     
     attachEvents() {
@@ -409,126 +338,499 @@ class WayMakerChat {
         this.messageInput.onkeypress = (e) => {
             if (e.key === 'Enter') this.sendMessage();
         };
-        this.userName.onchange = () => this.updateUserList();
         this.fileBtn.onclick = () => this.fileInput.click();
         this.voiceBtn.onclick = () => this.startVoiceInput();
+        this.prayerBtn.onclick = () => this.handlePrayerRequest();
+        this.verseBtn.onclick = () => this.handleVerseLookup();
+        this.exportBtn.onclick = () => this.exportConversation();
+        this.newSessionBtn.onclick = () => this.startNewSession();
+        this.exitChatBtn.onclick = () => this.exitChat();
+        this.headerExitBtn.onclick = () => this.exitChat();
         this.fileInput.onchange = (e) => this.handleFileUpload(e);
     }
     
-    updateUserList() {
-        const currentUser = this.userName.value || 'Friend';
-        this.users.add(currentUser);
+    // ✨ SUPABASE REALTIME GROUP CHAT SYSTEM ✨
+    
+    async initializeSupabase() {
+        try {
+            console.log('🚀 Initializing Supabase Group Chat...');
+            this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
+            console.log('✅ Supabase client created');
+            
+            await this.startSupabasePresence();
+            await this.startSupabaseMessaging();
+            
+        } catch (error) {
+            console.error('❌ Supabase initialization failed:', error);
+            this.startLocalMode();
+        }
+    }
+    
+    async startSupabasePresence() {
+        try {
+            this.presenceChannel = this.supabase.channel('waymaker-presence', {
+                config: { presence: { key: this.userInfo.name } }
+            });
+            
+            const presenceState = {
+                user_id: this.userInfo.name,
+                username: this.userInfo.name,
+                user_type: this.userInfo.type,
+                user_age: this.userInfo.age,
+                online_at: new Date().toISOString()
+            };
+            
+            this.presenceChannel.on('presence', { event: 'sync' }, () => {
+                const presenceState = this.presenceChannel.presenceState();
+                this.updateUserListFromSupabase(presenceState);
+            });
+            
+            this.presenceChannel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
+                newPresences.forEach(presence => {
+                    if (presence.username !== this.userInfo.name) {
+                        this.showUserJoinedNotification(presence.username);
+                    }
+                });
+            });
+            
+            this.presenceChannel.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+                leftPresences.forEach(presence => {
+                    if (presence.username !== this.userInfo.name) {
+                        this.showUserLeftNotification(presence.username);
+                    }
+                });
+            });
+            
+            await this.presenceChannel.subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    await this.presenceChannel.track(presenceState);
+                    console.log('✅ Presence tracked:', presenceState);
+                    this.showJoinNotification();
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ Presence setup failed:', error);
+        }
+    }
+    
+    async startSupabaseMessaging() {
+        try {
+            console.log('💬 Starting group messaging channel...');
+            
+            this.messagesChannel = this.supabase.channel('waymaker-messages');
+            
+            this.messagesChannel.on('broadcast', { event: 'new_message' }, (payload) => {
+                console.log('📨 Received group message:', payload);
+                
+                if (payload.payload.sender !== this.userInfo.name) {
+                    this.addMessageToUI(
+                        payload.payload.content,
+                        payload.payload.type,
+                        payload.payload.sender,
+                        payload.payload.shouldStream
+                    );
+                }
+            });
+            
+            await this.messagesChannel.subscribe((status) => {
+                if (status === 'SUBSCRIBED') {
+                    console.log('✅ Group messaging channel subscribed');
+                }
+            });
+            
+        } catch (error) {
+            console.error('❌ Group messaging setup failed:', error);
+        }
+    }
+    
+    async broadcastMessage(content, type, sender, shouldStream = false) {
+        if (this.messagesChannel) {
+            try {
+                await this.messagesChannel.send({
+                    type: 'broadcast',
+                    event: 'new_message',
+                    payload: {
+                        content: content,
+                        type: type,
+                        sender: sender,
+                        shouldStream: shouldStream,
+                        timestamp: new Date().toISOString()
+                    }
+                });
+                console.log('📤 Message broadcasted to group');
+            } catch (error) {
+                console.error('❌ Failed to broadcast message:', error);
+            }
+        }
+    }
+    
+    updateUserListFromSupabase(presenceState) {
+        const users = [];
         
+        users.push({ name: 'WayMaker AI', isBot: true, joinedAt: 0 });
+        
+        Object.values(presenceState).forEach(presences => {
+            presences.forEach(presence => {
+                if (!presence.username || presence.username === 'WayMaker AI') return;
+                
+                users.push({
+                    name: presence.username,
+                    type: presence.user_type,
+                    age: presence.user_age,
+                    isBot: false,
+                    joinedAt: presence.online_at ? new Date(presence.online_at).getTime() / 1000 : Date.now() / 1000
+                });
+            });
+        });
+        
+        this.activeUsers = users;
+        this.renderUserList(users);
+    }
+    
+    renderUserList(users) {
         this.userList.innerHTML = '';
-        this.users.forEach(user => {
+        
+        users.forEach(user => {
             const li = document.createElement('li');
-            li.className = 'user-item';
-            li.innerHTML = '<div class="status-dot"></div><span>' + user + '</span>';
+            li.className = 'flex items-center gap-1 text-gray-300 text-xs py-0.5';
+            
+            if (user.isBot) {
+                li.innerHTML = `
+                    <div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse"></div>
+                    <span class="text-blue-300 font-medium">🤖 ${user.name}</span>
+                    <span class="text-xs text-gray-500 ml-auto">AI</span>
+                `;
+            } else {
+                const isCurrentUser = user.name === this.userInfo.name;
+                const timeOnline = this.getTimeOnline(user.joinedAt);
+                
+                li.innerHTML = `
+                    <div class="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
+                    <span class="${isCurrentUser ? 'text-yellow-300 font-medium' : 'text-gray-300'}">${user.name}${isCurrentUser ? ' (you)' : ''}</span>
+                    <span class="text-xs text-gray-500 ml-auto">${timeOnline}</span>
+                `;
+            }
+            
             this.userList.appendChild(li);
+        });
+        
+        this.updateCommunityCount(users.length);
+    }
+    
+    startLocalMode() {
+        console.log('🔄 Using local mode fallback...');
+        const users = [
+            { name: 'WayMaker AI', isBot: true, joinedAt: 0 },
+            { name: this.userInfo.name, isBot: false, joinedAt: Date.now() / 1000 }
+        ];
+        this.activeUsers = users;
+        this.renderUserList(users);
+        this.showJoinNotification();
+    }
+    
+    getTimeOnline(joinedAt) {
+        if (!joinedAt || joinedAt === 0) return 'Always';
+        const now = Date.now() / 1000;
+        const onlineSeconds = Math.floor(now - joinedAt);
+        if (onlineSeconds < 60) return 'Just joined';
+        if (onlineSeconds < 3600) return `${Math.floor(onlineSeconds / 60)}m`;
+        if (onlineSeconds < 86400) return `${Math.floor(onlineSeconds / 3600)}h`;
+        return `${Math.floor(onlineSeconds / 86400)}d`;
+    }
+    
+    updateCommunityCount(count) {
+        const header = document.querySelector('#userList').parentElement.querySelector('h3');
+        header.textContent = `Community Members (${count})`;
+    }
+    
+    showJoinNotification() {
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm';
+        notification.textContent = `✅ Connected to WayMaker community!`;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+    
+    showUserJoinedNotification(userName) {
+        if (userName === this.userInfo.name) return;
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm';
+        notification.innerHTML = `🙏 ${userName} joined the community`;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 4000);
+    }
+    
+    showUserLeftNotification(userName) {
+        if (userName === this.userInfo.name) return;
+        const notification = document.createElement('div');
+        notification.className = 'fixed top-4 right-4 bg-gray-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm';
+        notification.innerHTML = `👋 ${userName} left the community`;
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
+    }
+    
+    cleanup() {
+        if (this.presenceChannel) {
+            this.presenceChannel.untrack();
+            this.presenceChannel.unsubscribe();
+        }
+        if (this.messagesChannel) {
+            this.messagesChannel.unsubscribe();
+        }
+    }
+    
+    // Enhanced Features
+    
+    loadHistoryCategories() {
+        try {
+            const saved = sessionStorage.getItem('waymaker_history_categories');
+            if (saved) {
+                this.historyCategories = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.log('Could not load history');
+        }
+    }
+    
+    saveHistoryCategories() {
+        try {
+            sessionStorage.setItem('waymaker_history_categories', JSON.stringify(this.historyCategories));
+        } catch (e) {
+            console.log('Session storage not available');
+        }
+    }
+    
+    updateHistoryDisplay() {
+        const historyContainer = this.historyList;
+        if (!historyContainer) return;
+        
+        const categories = [
+            { key: 'prayer', icon: '🙏', title: 'Prayer' },
+            { key: 'bible_study', icon: '📖', title: 'Bible' },
+            { key: 'spiritual_guidance', icon: '💭', title: 'Guidance' },
+            { key: 'community_fellowship', icon: '🤝', title: 'Fellowship' },
+            { key: 'crisis_support', icon: '💪', title: 'Support' },
+            { key: 'youth_family', icon: '👨‍👩‍👧‍👦', title: 'Family' }
+        ];
+        
+        historyContainer.innerHTML = '';
+        
+        categories.forEach(category => {
+            const items = this.historyCategories[category.key] || [];
+            const latestItem = items[0];
+            
+            const div = document.createElement('div');
+            div.className = 'history-item rounded cursor-pointer';
+            
+            const count = items.length;
+            const timeAgo = latestItem ? this.getTimeAgo(latestItem.timestamp) : 'None';
+            const preview = latestItem ? (latestItem.preview.length > 15 ? latestItem.preview.substring(0, 15) + '...' : latestItem.preview) : 'No activity';
+            
+            div.innerHTML = `
+                <div class="flex items-center gap-1 mb-0.5">
+                    <span class="text-xs">${category.icon}</span>
+                    <span class="text-xs font-medium truncate">${category.title}</span>
+                </div>
+                <div class="text-xs mb-0.5 text-gray-400">${count} • ${timeAgo}</div>
+                <div class="text-xs truncate text-gray-300">"${preview}"</div>
+            `;
+            
+            div.onclick = () => this.loadCategoryHistory(category.key, category.title);
+            historyContainer.appendChild(div);
         });
     }
     
-    addWelcomeMessage() {
-        const welcome = 'Peace be with you, beloved community! 👋\n\nWelcome to WayMaker AI Enhanced Community Chat! I\'m here to walk alongside you on your spiritual journey, providing biblical guidance, prayer support, and faithful encouragement.\n\n✅ **Full Biblical Knowledge Base Active**\n✅ **Enhanced Age Adaptation Ready**\n✅ **Complete Crisis Support Available**\n✅ **150+ Scripture References Loaded**\n\nWhether you\'re seeking answers to life\'s questions, exploring God\'s Word, or simply need someone to pray with, our community is here for you. Ask me biblical questions, request prayer, share your struggles, or simply share what\'s on your heart.\n\nRemember: No question is too small, and no burden is too heavy when we bring it before the Lord together.\n\nHow can our community grow in God\'s will together today?\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV\n\n"Come to me, all you who are weary and burdened, and I will give you rest." - Matthew 11:28 NIV';
+    getTimeAgo(timestamp) {
+        if (!timestamp) return 'Unknown';
+        try {
+            const now = new Date();
+            const past = new Date(timestamp);
+            const diffMs = now - past;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMs / 3600000);
+            const diffDays = Math.floor(diffMs / 86400000);
+            
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            if (diffDays < 7) return `${diffDays}d ago`;
+            return past.toLocaleDateString();
+        } catch (e) {
+            return 'Recently';
+        }
+    }
+    
+    loadCategoryHistory(categoryKey, categoryTitle) {
+        const items = this.historyCategories[categoryKey] || [];
+        if (items.length === 0) {
+            alert(`No ${categoryTitle.toLowerCase()} history yet.`);
+            return;
+        }
+        const historyText = items.map((item, index) => 
+            `${index + 1}. [${this.getTimeAgo(item.timestamp)}] ${item.preview}`
+        ).join('\n\n');
+        const userChoice = confirm(`${categoryTitle} History:\n\n${historyText}\n\nLoad one into input?`);
+        if (userChoice && items.length > 0) {
+            this.messageInput.value = items[0].preview;
+            this.messageInput.focus();
+        }
+    }
+    
+    addToHistory(type, preview, icon = '💬') {
+        const historyItem = {
+            type: type, preview: preview, icon: icon,
+            timestamp: new Date().toISOString()
+        };
         
-        this.addMessage(welcome, 'assistant', 'WayMaker AI', true);
+        let category = 'spiritual_guidance';
+        if (type === 'Prayer Request' || type.toLowerCase().includes('prayer') || preview.toLowerCase().includes('pray')) {
+            category = 'prayer';
+        } else if (type === 'Bible Study' || type.toLowerCase().includes('verse') || type.toLowerCase().includes('biblical') || preview.toLowerCase().includes('bible')) {
+            category = 'bible_study';
+        } else if (preview.toLowerCase().includes('crisis') || preview.toLowerCase().includes('help') || preview.toLowerCase().includes('emergency')) {
+            category = 'crisis_support';
+        } else if (preview.toLowerCase().includes('family') || preview.toLowerCase().includes('children') || preview.toLowerCase().includes('youth')) {
+            category = 'youth_family';
+        } else if (preview.toLowerCase().includes('community') || preview.toLowerCase().includes('fellowship') || preview.toLowerCase().includes('church')) {
+            category = 'community_fellowship';
+        }
+        
+        this.historyCategories[category].unshift(historyItem);
+        if (this.historyCategories[category].length > 10) {
+            this.historyCategories[category] = this.historyCategories[category].slice(0, 10);
+        }
+        
+        this.saveHistoryCategories();
+        this.updateHistoryDisplay();
+    }
+    
+    addWelcomeMessage() {
+        let welcome = `Peace be with you, ${this.userInfo.name}! 👋\n\nWelcome to WayMaker AI Enhanced Community Chat! `;
+        
+        if (this.userInfo.type === 'family') {
+            welcome += `Families like yours find strength sharing biblical wisdom together.\n\n`;
+        } else if (this.userInfo.type === 'community_partner') {
+            welcome += `Thank you for your ministry leadership - your voice strengthens our community.\n\n`;
+        } else {
+            welcome += `Share your spiritual journey with our growing community.\n\n`;
+        }
+        
+        if (this.userInfo.access === 'equity') {
+            welcome += `🎁 You have Equity Access with enhanced community support.\n\n`;
+        }
+        
+        welcome += `✨ **NEW ENHANCED FEATURES:**\n🙏 Prayer requests with community sharing\n📖 Bible verse lookup and study\n🎤 Voice input and 🔊 text-to-speech\n📁 File upload for biblical analysis\n💾 Export conversations\n📜 Smart conversation history\n\nThis is a real-time group chat where everyone sees all messages. WayMaker AI responds to biblical questions and spiritual guidance requests.\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV`;
+        
+        this.addMessageToUI(welcome, 'assistant', 'WayMaker AI', true);
     }
     
     async sendMessage() {
         const message = this.messageInput.value.trim();
         if (!message) return;
         
-        const userName = this.userName.value || 'Friend';
-        const userAge = this.userAge.value;
-        const registrationType = this.registrationType.value;
+        this.addMessageToUI(message, 'user', this.userInfo.name);
+        await this.broadcastMessage(message, 'user', this.userInfo.name);
         
-        this.addMessage(message, 'user', userName);
         this.messageInput.value = '';
-        this.updateUserList();
         
-        this.showTyping();
+        const lowerMessage = message.toLowerCase();
+        let historyType = 'Message';
+        let historyIcon = '💬';
         
-        try {
-            const response = await this.callDifyAPI(message, userName, userAge, registrationType);
-            this.hideTyping();
+        if (lowerMessage.includes('bible') || lowerMessage.includes('scripture') || lowerMessage.includes('verse')) {
+            historyType = 'Bible Study';
+            historyIcon = '📖';
+        } else if (lowerMessage.includes('prayer') || lowerMessage.includes('pray')) {
+            historyType = 'Prayer Request';
+            historyIcon = '🙏';
+        }
+        
+        this.addToHistory(historyType, message, historyIcon);
+        
+        if (this.shouldWayMakerRespond(message)) {
+            this.showTyping();
             
-            if (response && response !== '(silence)') {
-                this.addMessage(response, 'assistant', 'WayMaker AI', true);
-            } else {
-                console.log('⚠️ API returned empty/silence response');
+            try {
+                const response = await this.callDifyAPI(message);
+                this.hideTyping();
+                
+                if (response && response !== '(silence)') {
+                    this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
+                    await this.broadcastMessage(response, 'assistant', 'WayMaker AI', true);
+                } else {
+                    const fallback = this.getFallbackResponse(message);
+                    if (fallback !== '(silence)') {
+                        this.addMessageToUI(fallback, 'assistant', 'WayMaker AI', true);
+                        await this.broadcastMessage(fallback, 'assistant', 'WayMaker AI', true);
+                    }
+                }
+            } catch (error) {
+                this.hideTyping();
+                console.error('❌ Dify API Error:', error);
                 const fallback = this.getFallbackResponse(message);
                 if (fallback !== '(silence)') {
-                    this.addMessage(fallback, 'assistant', 'WayMaker AI', true);
+                    this.addMessageToUI(fallback, 'assistant', 'WayMaker AI', true);
+                    await this.broadcastMessage(fallback, 'assistant', 'WayMaker AI', true);
                 }
-            }
-        } catch (error) {
-            this.hideTyping();
-            console.error('❌ Dify API Error:', error);
-            
-            if (error.message.includes('API call failed') || error.message.includes('fetch')) {
-                console.log('🔄 Using fallback due to API connection error');
-                const fallback = this.getFallbackResponse(message);
-                if (fallback !== '(silence)') {
-                    this.addMessage(fallback, 'assistant', 'WayMaker AI', true);
-                }
-            } else {
-                console.log('🚫 API error without fallback:', error.message);
-                this.addMessage('I apologize, but I\'m having difficulty connecting to my enhanced knowledge base right now. Please try again in a moment, or feel free to ask your question differently. 🙏', 'assistant', 'WayMaker AI', true);
             }
         }
     }
     
-    async callDifyAPI(message, userName, userAge, registrationType, retryCount = 0) {
-        console.log('🔗 Making API call to:', this.apiUrl);
-        
-        // Enhanced context detection
+    shouldWayMakerRespond(message) {
         const lowerMessage = message.toLowerCase();
-        let spiritual_context = 'seeking guidance';
+        
+        return lowerMessage.includes('waymaker') ||
+               lowerMessage.includes('bible') || lowerMessage.includes('scripture') || lowerMessage.includes('verse') ||
+               lowerMessage.includes('prayer') || lowerMessage.includes('pray') ||
+               lowerMessage.includes('jesus') || lowerMessage.includes('god') || lowerMessage.includes('faith') ||
+               lowerMessage.includes('guidance') || lowerMessage.includes('help') ||
+               lowerMessage.includes('wisdom') || lowerMessage.includes('spiritual');
+    }
+    
+    async callDifyAPI(message, retryCount = 0) {
+        const lowerMessage = message.toLowerCase();
+        let spiritual_context = 'group discussion';
         let crisis_level = 'none';
         
-        if (lowerMessage.includes('doubt') || lowerMessage.includes('losing faith') || lowerMessage.includes('abandoned')) {
+        if (lowerMessage.includes('doubt') || lowerMessage.includes('losing faith')) {
             spiritual_context = 'faith crisis';
             crisis_level = 'serious';
-        } else if (lowerMessage.includes('death') || lowerMessage.includes('died') || lowerMessage.includes('grief')) {
+        } else if (lowerMessage.includes('death') || lowerMessage.includes('grief')) {
             spiritual_context = 'grief and loss';
             crisis_level = 'serious';
-        } else if (lowerMessage.includes('decision') || lowerMessage.includes('job') || lowerMessage.includes('relationship')) {
-            spiritual_context = 'life guidance';
-        } else if (lowerMessage.includes('prayer') || lowerMessage.includes('pray')) {
+        } else if (lowerMessage.includes('prayer')) {
             spiritual_context = 'prayer support';
-        } else if (lowerMessage.includes('bible') || lowerMessage.includes('scripture')) {
+        } else if (lowerMessage.includes('bible')) {
             spiritual_context = 'biblical study';
-        } else if (lowerMessage.includes('struggling') || lowerMessage.includes('difficult') || lowerMessage.includes('financial') || lowerMessage.includes('hardship')) {
+        } else if (lowerMessage.includes('struggling')) {
             spiritual_context = 'personal struggle';
             crisis_level = 'mild';
         }
         
-        // ✅ CORRECT PAYLOAD FORMAT - Matches Dify Studio variables exactly
         const payload = {
             inputs: {
-                user_name: userName || 'Friend',
-                user_age: userAge,
+                user_name: this.userInfo.name,
+                user_age: this.userInfo.age,
                 emotion: crisis_level === 'serious' ? 'distressed' : crisis_level === 'mild' ? 'concerned' : 'peaceful',
-                topic: message,  // Full message - no truncation
+                topic: message,
                 bible_version: 'NIV',
-                registration_type: registrationType,
-                family_group_size: registrationType === 'family_group' ? '4' : null,
+                registration_type: this.userInfo.type,
+                family_group_size: this.userInfo.familySize || (this.userInfo.type === 'family' ? '4' : null),
                 user_role: 'member',
                 depth: 'comprehensive',
                 tone: 'compassionate',
                 application: 'practical',
-                language: 'English'
+                language: this.userInfo.language
             },
             query: message,
             response_mode: 'blocking',
-            user: userName || 'test'
+            user: this.userInfo.name
         };
         
         if (this.conversationId) {
             payload.conversation_id = this.conversationId;
         }
-        
-        console.log('📝 FIXED API Payload:', payload);
         
         try {
             const response = await fetch(this.apiUrl, {
@@ -540,33 +842,18 @@ class WayMakerChat {
                 body: JSON.stringify(payload)
             });
             
-            console.log('📡 API Response Status:', response.status);
-            
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('❌ API Error Details:', {
-                    status: response.status,
-                    statusText: response.statusText,
-                    body: errorText,
-                    url: this.apiUrl,
-                    payload: payload
-                });
-                
                 if (response.status === 404 && retryCount < 2) {
-                    console.warn(`🔄 API 404 error, retrying... (attempt ${retryCount + 1}/3)`);
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    return this.callDifyAPI(message, userName, userAge, registrationType, retryCount + 1);
+                    return this.callDifyAPI(message, retryCount + 1);
                 }
-                
-                throw new Error(`API call failed: ${response.status} ${response.statusText} - ${errorText}`);
+                throw new Error(`API call failed: ${response.status} ${response.statusText}`);
             }
             
             const data = await response.json();
-            console.log('✅ API Response Data:', data);
             
             if (data.conversation_id) {
                 this.conversationId = data.conversation_id;
-                console.log('🔗 Updated conversation_id:', this.conversationId);
             }
             
             if (data.message_id) {
@@ -575,18 +862,15 @@ class WayMakerChat {
             
             const apiResponse = data.answer || data.data?.answer || data.message;
             if (apiResponse && apiResponse.trim() && apiResponse !== '(silence)') {
-                console.log('✅ Using API response:', apiResponse.substring(0, 100) + '...');
                 return apiResponse;
             } else {
-                console.log('❌ No valid API response, using fallback');
                 throw new Error('No valid API response received');
             }
             
         } catch (fetchError) {
             if (retryCount < 2) {
-                console.warn(`🔄 Network error, retrying... (attempt ${retryCount + 1}/3):`, fetchError.message);
                 await new Promise(resolve => setTimeout(resolve, 1000));
-                return this.callDifyAPI(message, userName, userAge, registrationType, retryCount + 1);
+                return this.callDifyAPI(message, retryCount + 1);
             }
             throw fetchError;
         }
@@ -594,9 +878,11 @@ class WayMakerChat {
     
     getFallbackResponse(message) {
         const lowerMessage = message.toLowerCase();
+        let fallback = `Peace be with you, ${this.userInfo.name}! `;
         
         if (lowerMessage.includes('waymaker') || lowerMessage.includes('help')) {
-            return 'Peace be with you! I\'m here to help our community grow in faith. "Ask and it will be given to you; seek and you will find; knock and the door will be opened to you." - Matthew 7:7 NIV\n\nI\'m currently having some connection issues with my enhanced knowledge base. Please try asking your question again.';
+            fallback += 'I\'m here to help our community grow in faith. "Ask and it will be given to you; seek and you will find; knock and the door will be opened to you." - Matthew 7:7 NIV\n\nI\'m currently having some connection issues. Please try again.';
+            return fallback;
         }
         
         if (!lowerMessage.includes('god') && !lowerMessage.includes('jesus') && 
@@ -605,26 +891,34 @@ class WayMakerChat {
             return '(silence)';
         }
         
-        return 'I\'m here to provide biblical guidance, but I\'m currently experiencing technical difficulties with my enhanced responses. Please try again, and I\'ll do my best to help with God\'s wisdom. 🙏';
+        fallback += 'I\'m here to provide biblical guidance for our community, but I\'m currently experiencing technical difficulties. Please try again, and I\'ll do my best to help with God\'s wisdom. 🙏';
+        return fallback;
     }
     
-    addMessage(content, type, sender, shouldStream = false) {
+    addMessageToUI(content, type, sender, shouldStream = false) {
         if (content === '(silence)') return;
         
         const messageDiv = document.createElement('div');
         const messageId = 'msg_' + (++this.messageCounter);
         messageDiv.id = messageId;
-        messageDiv.className = 'message ' + type;
+        messageDiv.className = 'message group';
         
         const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        const isUser = type === 'user';
+        const isCurrentUser = sender === this.userInfo.name;
         
         messageDiv.innerHTML = 
-            '<div class="message-header">' +
-                '<strong>' + sender + '</strong>' +
-                '<span>' + time + '</span>' +
-            '</div>' +
-            '<div class="message-content">' +
-                (shouldStream ? '' : content) +
+            '<div class="flex ' + (isCurrentUser ? 'justify-end' : 'justify-start') + '">' +
+                '<div class="max-w-2xl">' +
+                    '<div class="flex justify-between items-center mb-1 text-xs text-gray-400">' +
+                        '<strong class="text-' + (isUser ? (isCurrentUser ? 'yellow' : 'blue') : 'green') + '-400">' + sender + (isCurrentUser ? ' (you)' : '') + '</strong>' +
+                        '<span>' + time + '</span>' +
+                    '</div>' +
+                    '<div class="message-content compact-message p-2 rounded-xl whitespace-pre-wrap ' + 
+                        (isUser ? (isCurrentUser ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white') : 'bg-gray-800 text-gray-100 border border-gray-700') + '">' +
+                        (shouldStream ? '' : content) +
+                    '</div>' +
+                '</div>' +
             '</div>';
         
         this.messagesContainer.appendChild(messageDiv);
@@ -646,15 +940,15 @@ class WayMakerChat {
         let displayedText = '';
         const words = fullText.split(' ');
         
-        const baseDelay = 30;
-        const wordDelay = 100;
-        const punctuationDelay = 200;
+        const baseDelay = 25;
+        const wordDelay = 80;
+        const punctuationDelay = 150;
         
         for (let i = 0; i < words.length; i++) {
             const word = words[i];
             displayedText += (i > 0 ? ' ' : '') + word;
             
-            contentDiv.innerHTML = displayedText + '<span class="typing-cursor">▊</span>';
+            contentDiv.innerHTML = displayedText + '<span class="typing-cursor animate-pulse">▊</span>';
             this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
             
             let delay = baseDelay * word.length + wordDelay;
@@ -671,19 +965,31 @@ class WayMakerChat {
         }
         
         contentDiv.innerHTML = displayedText;
+        
+        contentDiv.style.transform = 'scale(1.01)';
+        setTimeout(() => {
+            contentDiv.style.transform = 'scale(1)';
+            contentDiv.style.transition = 'transform 0.2s ease';
+        }, 200);
     }
     
     showTyping() {
         const typingDiv = document.createElement('div');
         typingDiv.id = 'typing';
-        typingDiv.className = 'typing-indicator';
+        typingDiv.className = 'flex justify-start';
         typingDiv.innerHTML = 
-            '<div class="typing-dots">' +
-                '<div class="typing-dot"></div>' +
-                '<div class="typing-dot"></div>' +
-                '<div class="typing-dot"></div>' +
-            '</div>' +
-            '<span>WayMaker AI is reflecting...</span>';
+            '<div class="max-w-2xl">' +
+                '<div class="p-2 bg-gray-800 border border-gray-700 rounded-xl">' +
+                    '<div class="flex items-center gap-2 text-gray-400 italic text-sm">' +
+                        '<div class="flex gap-1">' +
+                            '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>' +
+                            '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>' +
+                            '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>' +
+                        '</div>' +
+                        '<span>WayMaker AI is reflecting...</span>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
         
         this.messagesContainer.appendChild(typingDiv);
         this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
@@ -696,6 +1002,8 @@ class WayMakerChat {
         }
     }
     
+    // Enhanced Feature Handlers
+    
     startVoiceInput() {
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -703,7 +1011,7 @@ class WayMakerChat {
             
             recognition.continuous = false;
             recognition.interimResults = false;
-            recognition.lang = 'en-US';
+            recognition.lang = this.userInfo.language === 'Spanish' ? 'es-ES' : 'en-US';
             
             recognition.onstart = () => {
                 this.voiceBtn.textContent = '🛑';
@@ -731,46 +1039,124 @@ class WayMakerChat {
         if (!files.length) return;
         
         for (const file of files) {
-            this.addMessage('📁 Uploaded file: ' + file.name + '\n\nWayMaker AI, please analyze this file and provide biblical insights.', 'user', this.userName.value || 'Friend');
+            const message = '📁 Shared file with community: ' + file.name + '\n\nWayMaker AI, please provide biblical insights on this file for our group.';
+            this.addMessageToUI(message, 'user', this.userInfo.name);
+            this.broadcastMessage(message, 'user', this.userInfo.name);
+            
+            this.addToHistory('File Upload', file.name, '📁');
             
             setTimeout(() => {
-                const response = 'I\'ve received your file "' + file.name + '". While I process biblical content, here\'s encouragement:\n\n"Your word is a lamp for my feet, a light on my path." - Psalm 119:105 NIV\n\nPlease share what specific aspects you\'d like me to explore from a biblical perspective. I\'m here to provide wisdom based on God\'s Word.';
-                this.addMessage(response, 'assistant', 'WayMaker AI', true);
+                const response = `Thank you, ${this.userInfo.name}, for sharing "${file.name}" with our community.\n\n"Your word is a lamp for my feet, a light on my path." - Psalm 119:105 NIV\n\nPlease share what specific aspects you'd like our community to explore from a biblical perspective.`;
+                this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
+                this.broadcastMessage(response, 'assistant', 'WayMaker AI', true);
             }, 1000);
         }
         
         event.target.value = '';
     }
+    
+    handlePrayerRequest() {
+        const prayer = prompt('Share your prayer request with the community:');
+        if (prayer && prayer.trim()) {
+            const message = '🙏 Prayer Request for Community: ' + prayer + '\n\nWayMaker AI, please provide biblical encouragement for this prayer request.';
+            this.addMessageToUI(message, 'user', this.userInfo.name);
+            this.broadcastMessage(message, 'user', this.userInfo.name);
+            
+            this.addToHistory('Prayer Request', prayer, '🙏');
+            
+            setTimeout(() => {
+                const response = `Let us pray together for ${this.userInfo.name}:\n\n"Heavenly Father, we lift up this prayer request: ${prayer}\n\nLord, we ask for Your peace and guidance. Help us trust Your perfect timing.\n\n'And we know that in all things God works for the good of those who love him.' - Romans 8:28 NIV\n\nOur community stands with you in prayer. 🙏❤️"`;
+                this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
+                this.broadcastMessage(response, 'assistant', 'WayMaker AI', true);
+            }, 1000);
+        }
+    }
+    
+    handleVerseLookup() {
+        const verse = prompt('Enter a Bible verse reference to share with the community (e.g., John 3:16):');
+        if (verse && verse.trim()) {
+            const message = '📖 Bible Study for Community: Please explain ' + verse + ' with biblical context and application.';
+            this.addMessageToUI(message, 'user', this.userInfo.name);
+            this.broadcastMessage(message, 'user', this.userInfo.name);
+            
+            this.addToHistory('Bible Study', verse, '📖');
+            
+            setTimeout(() => {
+                const response = `Here's guidance on ${verse} for our community:\n\nFor the exact text, please consult your Bible. I can share biblical wisdom on this topic:\n\n"All Scripture is God-breathed and useful for teaching." - 2 Timothy 3:16 NIV\n\nHow would our community like to explore the themes from this passage together?`;
+                this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
+                this.broadcastMessage(response, 'assistant', 'WayMaker AI', true);
+            }, 1000);
+        }
+    }
+    
+    exportConversation() {
+        const messages = [];
+        const messageElements = this.messagesContainer.querySelectorAll('.message');
+        
+        messageElements.forEach(el => {
+            if (el.id === 'typing') return;
+            
+            const sender = el.querySelector('strong').textContent;
+            const content = el.querySelector('.message-content').textContent;
+            const timestamp = el.querySelector('span').textContent;
+            
+            messages.push('[' + timestamp + '] ' + sender + ': ' + content);
+        });
+        
+        const sessionInfo = `Enhanced Group Chat Export\nUser: ${this.userInfo.name}\nAge: ${this.userInfo.age}\nType: ${this.userInfo.type}\nAccess: ${this.userInfo.access}\nLanguage: ${this.userInfo.language}`;
+        
+        const exportText = `WayMaker AI Enhanced Group Chat Export\n${'='.repeat(50)}\nExported: ${new Date().toLocaleString()}\n\n${sessionInfo}\n\n${'='.repeat(50)}\n\n${messages.join('\n\n')}`;
+        
+        const blob = new Blob([exportText], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `waymaker-enhanced-chat-${this.userInfo.name}-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+    
+    startNewSession() {
+        if (confirm('Start a new session? This will return you to the welcome page and end your group chat participation.')) {
+            window.location.href = 'auth.html';
+        }
+    }
+    
+    exitChat() {
+        const userName = this.userInfo.name;
+        
+        const exitMessage = `${userName}, are you sure you want to exit the WayMaker AI enhanced group chat?\n\n` +
+                          `You'll leave the community discussion and session data will be cleared.\n` +
+                          `You can always return anytime - just visit our welcome page again!\n\n` +
+                          `"The Lord your God will be with you wherever you go." - Joshua 1:9`;
+        
+        if (confirm(exitMessage)) {
+            this.cleanup();
+            window.location.href = 'index.html';
+        }
+    }
 }
 
-// Initialize chat when page loads
+// Initialize enhanced group chat when page loads
 let chat;
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 DOM loaded, starting WayMaker AI...');
+    console.log('🚀 DOM loaded, starting enhanced group chat...');
     
-    // Get URL parameters for user configuration
     const urlParams = new URLSearchParams(window.location.search);
-    
-    chat = new WayMakerChat();
-    
-    // Set user info from URL parameters if available
-    if (urlParams.get('name')) {
-        document.getElementById('userName').value = urlParams.get('name');
-        chat.updateUserList();
+    if (!urlParams.get('name')) {
+        console.log('No user session found, redirecting to auth...');
+        window.location.href = 'auth.html';
+        return;
     }
     
-    if (urlParams.get('age')) {
-        document.getElementById('userAge').value = urlParams.get('age');
-    }
+    chat = new WayMakerGroupChat();
     
-    if (urlParams.get('type')) {
-        const typeMap = {
-            'individual': 'individual',
-            'family': 'family_group',
-            'partner': 'community_partner'
-        };
-        document.getElementById('registrationType').value = typeMap[urlParams.get('type')] || 'individual';
-    }
+    const style = document.createElement('style');
+    style.textContent = '.message:hover .message-actions { opacity: 1 !important; }';
+    document.head.appendChild(style);
 });
 
 console.log('✅ WayMaker AI Enhanced Community Chat script loaded successfully');
