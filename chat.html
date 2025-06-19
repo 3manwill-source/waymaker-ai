@@ -215,6 +215,21 @@
             background: #f59e0b;
             color: white;
         }
+
+        /* Loading animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #374151;
+            border-radius: 50%;
+            border-top-color: #3b82f6;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen">
@@ -330,7 +345,7 @@
             <div class="border-t border-gray-700 bg-gray-800 p-2">
                 <div class="flex gap-1 mb-2">
                     <div class="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300" id="userInfoDisplay">
-                        Loading session info...
+                        <span class="loading-spinner"></span> Loading session info...
                     </div>
                     <input type="file" id="fileInput" multiple class="hidden">
                     <button id="fileBtn" class="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs border-none cursor-pointer" title="Upload files">📁</button>
@@ -356,6 +371,8 @@ console.log('🚀 WayMaker AI Enhanced Community Chat starting...');
 
 class WayMakerGroupChat {
     constructor() {
+        console.log('🎯 Initializing WayMaker GroupChat...');
+        
         // Updated API configuration for live connection
         this.apiUrl = 'https://waymaker.4children.3manwill.com/v1/chat-messages';
         this.apiKey = 'app-Mfi59Fz3YkFakdCfToUGoRaK'; // Working API key
@@ -385,13 +402,24 @@ class WayMakerGroupChat {
         this.lastApiSuccess = null;
         this.apiFailureCount = 0;
         
+        // Initialization state
+        this.isInitialized = false;
+        this.initializationError = null;
+        
         this.userInfo = this.extractUserInfoFromURL();
-        this.init();
+        console.log('👤 User info extracted:', this.userInfo);
+        
+        // Start initialization
+        this.init().catch(error => {
+            console.error('❌ Initialization failed:', error);
+            this.initializationError = error;
+            this.showInitializationError(error);
+        });
     }
     
     extractUserInfoFromURL() {
         const urlParams = new URLSearchParams(window.location.search);
-        return {
+        const userInfo = {
             name: urlParams.get('name') || 'Friend',
             age: urlParams.get('age') || '18-25',
             language: urlParams.get('language') || 'English',
@@ -400,82 +428,222 @@ class WayMakerGroupChat {
             familySize: urlParams.get('family_size') || null,
             referralCode: urlParams.get('referral') || null
         };
+        
+        console.log('📋 Extracted user info:', userInfo);
+        return userInfo;
     }
     
-    init() {
-        console.log('✅ Initializing enhanced group chat...');
-        this.updateUserInterface();
-        this.bindElements();
-        this.attachEvents();
-        this.initializeSupabase();
-        this.loadHistoryCategories();
-        this.updateHistoryDisplay();
-        this.addWelcomeMessage();
-        this.testApiConnection();
-        console.log('✅ Enhanced group chat initialized successfully!');
+    async init() {
+        try {
+            console.log('✅ Starting initialization sequence...');
+            
+            // Step 1: Update UI immediately
+            this.updateUserInterface();
+            console.log('✅ UI updated');
+            
+            // Step 2: Bind elements and events
+            this.bindElements();
+            this.attachEvents();
+            console.log('✅ Events attached');
+            
+            // Step 3: Load history (synchronous)
+            this.loadHistoryCategories();
+            this.updateHistoryDisplay();
+            console.log('✅ History loaded');
+            
+            // Step 4: Add welcome message
+            this.addWelcomeMessage();
+            console.log('✅ Welcome message added');
+            
+            // Step 5: Initialize async components with proper error handling
+            await this.initializeAsyncComponents();
+            
+            // Mark as initialized
+            this.isInitialized = true;
+            console.log('🎉 Enhanced group chat initialized successfully!');
+            
+            // Update session info
+            this.updateSessionInfo();
+            
+        } catch (error) {
+            console.error('❌ Initialization error:', error);
+            this.initializationError = error;
+            throw error;
+        }
+    }
+    
+    async initializeAsyncComponents() {
+        console.log('🔄 Initializing async components...');
+        
+        // Initialize Supabase (non-blocking)
+        this.initializeSupabase().catch(error => {
+            console.warn('⚠️ Supabase initialization failed:', error);
+            this.supabaseStatusText.textContent = '⚠️ Real-time chat unavailable';
+            this.startLocalMode();
+        });
+        
+        // Test API connection (non-blocking)
+        this.testApiConnection().catch(error => {
+            console.warn('⚠️ API test failed:', error);
+            this.updateApiStatus('fallback', 'API unavailable - using fallback');
+        });
+    }
+    
+    showInitializationError(error) {
+        const userInfoDisplay = document.getElementById('userInfoDisplay');
+        if (userInfoDisplay) {
+            userInfoDisplay.innerHTML = `<span class="text-red-400">⚠️ Initialization error: ${error.message}</span>`;
+        }
+        
+        // Still try to provide basic functionality
+        this.startLocalMode();
+    }
+    
+    updateSessionInfo() {
+        const userInfoDisplay = document.getElementById('userInfoDisplay');
+        if (userInfoDisplay && this.userInfo) {
+            userInfoDisplay.textContent = `${this.userInfo.name} (${this.userInfo.age}, ${this.capitalizeFirst(this.userInfo.type.replace('_', ' '))})`;
+        }
     }
     
     updateUserInterface() {
-        document.getElementById('userDisplay').textContent = `Welcome, ${this.userInfo.name}!`;
-        document.getElementById('userTypeBadge').textContent = this.capitalizeFirst(this.userInfo.type.replace('_', ' '));
-        document.getElementById('accessTierBadge').textContent = this.capitalizeFirst(this.userInfo.access);
-        
-        const sessionInfo = `${this.userInfo.age} • ${this.userInfo.language}`;
-        document.getElementById('sessionInfo').textContent = sessionInfo;
-        
-        const userInfoDisplay = document.getElementById('userInfoDisplay');
-        userInfoDisplay.textContent = `${this.userInfo.name} (${this.userInfo.age}, ${this.capitalizeFirst(this.userInfo.type.replace('_', ' '))})`;
-        
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        welcomeMessage.textContent = `Real-time biblical guidance with edit/delete features and live Dify API connection!`;
+        try {
+            console.log('🎨 Updating user interface...');
+            
+            const userDisplay = document.getElementById('userDisplay');
+            if (userDisplay) {
+                userDisplay.textContent = `Welcome, ${this.userInfo.name}!`;
+            }
+            
+            const userTypeBadge = document.getElementById('userTypeBadge');
+            if (userTypeBadge) {
+                userTypeBadge.textContent = this.capitalizeFirst(this.userInfo.type.replace('_', ' '));
+            }
+            
+            const accessTierBadge = document.getElementById('accessTierBadge');
+            if (accessTierBadge) {
+                accessTierBadge.textContent = this.capitalizeFirst(this.userInfo.access);
+            }
+            
+            const sessionInfo = `${this.userInfo.age} • ${this.userInfo.language}`;
+            const sessionInfoEl = document.getElementById('sessionInfo');
+            if (sessionInfoEl) {
+                sessionInfoEl.textContent = sessionInfo;
+            }
+            
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            if (welcomeMessage) {
+                welcomeMessage.textContent = `Real-time biblical guidance with edit/delete features and live Dify API connection!`;
+            }
+            
+            console.log('✅ User interface updated successfully');
+        } catch (error) {
+            console.error('❌ Error updating user interface:', error);
+        }
     }
     
     capitalizeFirst(str) {
+        if (!str) return '';
         return str.charAt(0).toUpperCase() + str.slice(1);
     }
     
     bindElements() {
-        this.messagesContainer = document.getElementById('messagesContainer');
-        this.messageInput = document.getElementById('messageInput');
-        this.sendButton = document.getElementById('sendButton');
-        this.userList = document.getElementById('userList');
-        this.historyList = document.getElementById('historyList');
-        this.fileInput = document.getElementById('fileInput');
-        this.fileBtn = document.getElementById('fileBtn');
-        this.voiceBtn = document.getElementById('voiceBtn');
-        this.clearBtn = document.getElementById('clearBtn');
-        this.prayerBtn = document.getElementById('prayerBtn');
-        this.verseBtn = document.getElementById('verseBtn');
-        this.exportBtn = document.getElementById('exportBtn');
-        this.newSessionBtn = document.getElementById('newSessionBtn');
-        this.exitChatBtn = document.getElementById('exitChatBtn');
-        this.headerExitBtn = document.getElementById('headerExitBtn');
-        this.apiStatus = document.getElementById('apiStatus');
-        this.apiStatusText = document.getElementById('apiStatusText');
-        this.supabaseStatusText = document.getElementById('supabaseStatusText');
-        this.lastApiCall = document.getElementById('lastApiCall');
+        try {
+            console.log('🔗 Binding DOM elements...');
+            
+            this.messagesContainer = document.getElementById('messagesContainer');
+            this.messageInput = document.getElementById('messageInput');
+            this.sendButton = document.getElementById('sendButton');
+            this.userList = document.getElementById('userList');
+            this.historyList = document.getElementById('historyList');
+            this.fileInput = document.getElementById('fileInput');
+            this.fileBtn = document.getElementById('fileBtn');
+            this.voiceBtn = document.getElementById('voiceBtn');
+            this.clearBtn = document.getElementById('clearBtn');
+            this.prayerBtn = document.getElementById('prayerBtn');
+            this.verseBtn = document.getElementById('verseBtn');
+            this.exportBtn = document.getElementById('exportBtn');
+            this.newSessionBtn = document.getElementById('newSessionBtn');
+            this.exitChatBtn = document.getElementById('exitChatBtn');
+            this.headerExitBtn = document.getElementById('headerExitBtn');
+            this.apiStatus = document.getElementById('apiStatus');
+            this.apiStatusText = document.getElementById('apiStatusText');
+            this.supabaseStatusText = document.getElementById('supabaseStatusText');
+            this.lastApiCall = document.getElementById('lastApiCall');
+            
+            console.log('✅ DOM elements bound successfully');
+        } catch (error) {
+            console.error('❌ Error binding elements:', error);
+            throw error;
+        }
     }
     
     attachEvents() {
-        this.sendButton.onclick = () => this.sendMessage();
-        this.messageInput.onkeypress = (e) => {
-            if (e.key === 'Enter') this.sendMessage();
-        };
-        this.fileBtn.onclick = () => this.fileInput.click();
-        this.voiceBtn.onclick = () => this.startVoiceInput();
-        this.clearBtn.onclick = () => this.clearChat();
-        this.prayerBtn.onclick = () => this.handlePrayerRequest();
-        this.verseBtn.onclick = () => this.handleVerseLookup();
-        this.exportBtn.onclick = () => this.exportConversation();
-        this.newSessionBtn.onclick = () => this.startNewSession();
-        this.exitChatBtn.onclick = () => this.exitChat();
-        this.headerExitBtn.onclick = () => this.exitChat();
-        this.fileInput.onchange = (e) => this.handleFileUpload(e);
+        try {
+            console.log('📎 Attaching event listeners...');
+            
+            if (this.sendButton) {
+                this.sendButton.onclick = () => this.sendMessage();
+            }
+            
+            if (this.messageInput) {
+                this.messageInput.onkeypress = (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                };
+            }
+            
+            if (this.fileBtn) {
+                this.fileBtn.onclick = () => this.fileInput?.click();
+            }
+            
+            if (this.voiceBtn) {
+                this.voiceBtn.onclick = () => this.startVoiceInput();
+            }
+            
+            if (this.clearBtn) {
+                this.clearBtn.onclick = () => this.clearChat();
+            }
+            
+            if (this.prayerBtn) {
+                this.prayerBtn.onclick = () => this.handlePrayerRequest();
+            }
+            
+            if (this.verseBtn) {
+                this.verseBtn.onclick = () => this.handleVerseLookup();
+            }
+            
+            if (this.exportBtn) {
+                this.exportBtn.onclick = () => this.exportConversation();
+            }
+            
+            if (this.newSessionBtn) {
+                this.newSessionBtn.onclick = () => this.startNewSession();
+            }
+            
+            if (this.exitChatBtn) {
+                this.exitChatBtn.onclick = () => this.exitChat();
+            }
+            
+            if (this.headerExitBtn) {
+                this.headerExitBtn.onclick = () => this.exitChat();
+            }
+            
+            if (this.fileInput) {
+                this.fileInput.onchange = (e) => this.handleFileUpload(e);
+            }
+            
+            console.log('✅ Event listeners attached successfully');
+        } catch (error) {
+            console.error('❌ Error attaching events:', error);
+            throw error;
+        }
     }
 
     // Enhanced API Status Management
     async testApiConnection() {
         try {
+            console.log('🔄 Testing API connection...');
+            
             const testPayload = {
                 inputs: {
                     user_name: this.userInfo.name,
@@ -499,42 +667,50 @@ class WayMakerGroupChat {
             if (response.ok) {
                 this.updateApiStatus('connected', 'Connected to Dify API');
                 console.log('✅ API connection test successful');
+                return true;
             } else {
                 throw new Error(`API test failed: ${response.status}`);
             }
         } catch (error) {
             console.warn('⚠️ API connection test failed:', error);
             this.updateApiStatus('fallback', 'Using fallback responses');
+            return false;
         }
     }
 
     updateApiStatus(status, message) {
-        const statusEl = this.apiStatus;
-        const textEl = this.apiStatusText;
-        
-        statusEl.className = `api-status ${status}`;
-        
-        switch(status) {
-            case 'connected':
-                statusEl.textContent = '✓ Live API';
-                textEl.textContent = '✓ Connected to Dify API';
-                this.lastApiSuccess = new Date();
-                this.apiFailureCount = 0;
-                break;
-            case 'fallback':
-                statusEl.textContent = '⚠ Fallback';
-                textEl.textContent = '⚠ Using fallback responses';
-                this.apiFailureCount++;
-                break;
-            case 'disconnected':
-                statusEl.textContent = '✗ Offline';
-                textEl.textContent = '✗ API connection failed';
-                this.apiFailureCount++;
-                break;
-        }
-        
-        if (this.lastApiCall) {
-            this.lastApiCall.textContent = `Last response: ${this.getTimeAgo(this.lastApiSuccess || new Date())}`;
+        try {
+            const statusEl = this.apiStatus;
+            const textEl = this.apiStatusText;
+            
+            if (!statusEl || !textEl) return;
+            
+            statusEl.className = `api-status ${status}`;
+            
+            switch(status) {
+                case 'connected':
+                    statusEl.textContent = '✓ Live API';
+                    textEl.textContent = '✓ Connected to Dify API';
+                    this.lastApiSuccess = new Date();
+                    this.apiFailureCount = 0;
+                    break;
+                case 'fallback':
+                    statusEl.textContent = '⚠ Fallback';
+                    textEl.textContent = '⚠ Using fallback responses';
+                    this.apiFailureCount++;
+                    break;
+                case 'disconnected':
+                    statusEl.textContent = '✗ Offline';
+                    textEl.textContent = '✗ API connection failed';
+                    this.apiFailureCount++;
+                    break;
+            }
+            
+            if (this.lastApiCall) {
+                this.lastApiCall.textContent = `Last response: ${this.getTimeAgo(this.lastApiSuccess || new Date())}`;
+            }
+        } catch (error) {
+            console.error('❌ Error updating API status:', error);
         }
     }
     
@@ -543,17 +719,26 @@ class WayMakerGroupChat {
     async initializeSupabase() {
         try {
             console.log('🚀 Initializing Supabase Group Chat...');
+            
+            if (typeof supabase === 'undefined') {
+                throw new Error('Supabase library not loaded');
+            }
+            
             this.supabase = supabase.createClient(this.supabaseUrl, this.supabaseKey);
             console.log('✅ Supabase client created');
             
             await this.startSupabasePresence();
             await this.startSupabaseMessaging();
             
-            this.supabaseStatusText.textContent = '✓ Real-time chat active';
+            if (this.supabaseStatusText) {
+                this.supabaseStatusText.textContent = '✓ Real-time chat active';
+            }
             
         } catch (error) {
             console.error('❌ Supabase initialization failed:', error);
-            this.supabaseStatusText.textContent = '✗ Real-time chat unavailable';
+            if (this.supabaseStatusText) {
+                this.supabaseStatusText.textContent = '✗ Real-time chat unavailable';
+            }
             this.startLocalMode();
         }
     }
@@ -681,6 +866,8 @@ class WayMakerGroupChat {
     }
     
     renderUserList(users) {
+        if (!this.userList) return;
+        
         this.userList.innerHTML = '';
         
         users.forEach(user => {
@@ -732,43 +919,41 @@ class WayMakerGroupChat {
     }
     
     updateCommunityCount(count) {
-        const header = document.querySelector('#userList').parentElement.querySelector('h3');
-        header.textContent = `Community Members (${count})`;
+        try {
+            const header = document.querySelector('#userList')?.parentElement?.querySelector('h3');
+            if (header) {
+                header.textContent = `Community Members (${count})`;
+            }
+        } catch (error) {
+            console.error('❌ Error updating community count:', error);
+        }
     }
     
     showJoinNotification() {
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-green-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm';
-        notification.textContent = `✅ Connected to WayMaker community!`;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
+        this.showNotification('✅ Connected to WayMaker community!', 'green');
     }
     
     showUserJoinedNotification(userName) {
         if (userName === this.userInfo.name) return;
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm';
-        notification.innerHTML = `🙏 ${userName} joined the community`;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 4000);
+        this.showNotification(`🙏 ${userName} joined the community`, 'blue');
     }
     
     showUserLeftNotification(userName) {
         if (userName === this.userInfo.name) return;
-        const notification = document.createElement('div');
-        notification.className = 'fixed top-4 right-4 bg-gray-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm';
-        notification.innerHTML = `👋 ${userName} left the community`;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
+        this.showNotification(`👋 ${userName} left the community`, 'gray');
     }
     
     cleanup() {
-        if (this.presenceChannel) {
-            this.presenceChannel.untrack();
-            this.presenceChannel.unsubscribe();
-        }
-        if (this.messagesChannel) {
-            this.messagesChannel.unsubscribe();
+        try {
+            if (this.presenceChannel) {
+                this.presenceChannel.untrack();
+                this.presenceChannel.unsubscribe();
+            }
+            if (this.messagesChannel) {
+                this.messagesChannel.unsubscribe();
+            }
+        } catch (error) {
+            console.error('❌ Error during cleanup:', error);
         }
     }
     
@@ -781,7 +966,7 @@ class WayMakerGroupChat {
                 this.historyCategories = JSON.parse(saved);
             }
         } catch (e) {
-            console.log('Could not load history');
+            console.log('Could not load history:', e);
         }
     }
     
@@ -789,7 +974,7 @@ class WayMakerGroupChat {
         try {
             sessionStorage.setItem('waymaker_history_categories', JSON.stringify(this.historyCategories));
         } catch (e) {
-            console.log('Session storage not available');
+            console.log('Session storage not available:', e);
         }
     }
     
@@ -864,8 +1049,10 @@ class WayMakerGroupChat {
         ).join('\n\n');
         const userChoice = confirm(`${categoryTitle} History:\n\n${historyText}\n\nLoad one into input?`);
         if (userChoice && items.length > 0) {
-            this.messageInput.value = items[0].preview;
-            this.messageInput.focus();
+            if (this.messageInput) {
+                this.messageInput.value = items[0].preview;
+                this.messageInput.focus();
+            }
         }
     }
     
@@ -898,83 +1085,94 @@ class WayMakerGroupChat {
     }
     
     addWelcomeMessage() {
-        let welcome = `Peace be with you, ${this.userInfo.name}! 👋\n\nWelcome to WayMaker AI Enhanced Community Chat - now with full editing capabilities and live API connection! `;
-        
-        if (this.userInfo.type === 'family') {
-            welcome += `Families like yours find strength sharing biblical wisdom together.\n\n`;
-        } else if (this.userInfo.type === 'community_partner') {
-            welcome += `Thank you for your ministry leadership - your voice strengthens our community.\n\n`;
-        } else {
-            welcome += `Share your spiritual journey with our growing faith community.\n\n`;
+        try {
+            console.log('👋 Adding welcome message...');
+            
+            let welcome = `Peace be with you, ${this.userInfo.name}! 👋\n\nWelcome to WayMaker AI Enhanced Community Chat - now with full editing capabilities and live API connection! `;
+            
+            if (this.userInfo.type === 'family') {
+                welcome += `Families like yours find strength sharing biblical wisdom together.\n\n`;
+            } else if (this.userInfo.type === 'community_partner') {
+                welcome += `Thank you for your ministry leadership - your voice strengthens our community.\n\n`;
+            } else {
+                welcome += `Share your spiritual journey with our growing faith community.\n\n`;
+            }
+            
+            if (this.userInfo.access === 'equity') {
+                welcome += `🎁 You have Equity Access with enhanced community support.\n\n`;
+            }
+            
+            welcome += `✨ **ENHANCED FEATURES NOW AVAILABLE:**\n✏️ Edit & delete your messages\n🙏 Prayer requests with community sharing\n📖 Bible verse lookup and study\n🎤 Voice input and 🔊 text-to-speech\n📁 File upload for biblical analysis\n💾 Export conversations\n📜 Smart conversation history\n🔗 Live Dify API connection\n\nThis is a real-time group chat where everyone sees all messages. WayMaker AI responds to biblical questions and spiritual guidance requests.\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV`;
+            
+            this.addMessageToUI(welcome, 'assistant', 'WayMaker AI', true);
+            console.log('✅ Welcome message added successfully');
+        } catch (error) {
+            console.error('❌ Error adding welcome message:', error);
         }
-        
-        if (this.userInfo.access === 'equity') {
-            welcome += `🎁 You have Equity Access with enhanced community support.\n\n`;
-        }
-        
-        welcome += `✨ **ENHANCED FEATURES NOW AVAILABLE:**\n✏️ Edit & delete your messages\n🙏 Prayer requests with community sharing\n📖 Bible verse lookup and study\n🎤 Voice input and 🔊 text-to-speech\n📁 File upload for biblical analysis\n💾 Export conversations\n📜 Smart conversation history\n🔗 Live Dify API connection\n\nThis is a real-time group chat where everyone sees all messages. WayMaker AI responds to biblical questions and spiritual guidance requests.\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV`;
-        
-        this.addMessageToUI(welcome, 'assistant', 'WayMaker AI', true);
     }
     
     async sendMessage() {
-        const message = this.messageInput.value.trim();
-        if (!message) return;
-        
-        // Check if we're in edit mode
-        if (this.editingMessageId) {
-            this.saveMessageEdit(message);
-            return;
-        }
-        
-        this.addMessageToUI(message, 'user', this.userInfo.name);
-        await this.broadcastMessage(message, 'user', this.userInfo.name);
-        
-        this.messageInput.value = '';
-        
-        const lowerMessage = message.toLowerCase();
-        let historyType = 'Message';
-        let historyIcon = '💬';
-        
-        if (lowerMessage.includes('bible') || lowerMessage.includes('scripture') || lowerMessage.includes('verse')) {
-            historyType = 'Bible Study';
-            historyIcon = '📖';
-        } else if (lowerMessage.includes('prayer') || lowerMessage.includes('pray')) {
-            historyType = 'Prayer Request';
-            historyIcon = '🙏';
-        }
-        
-        this.addToHistory(historyType, message, historyIcon);
-        
-        if (this.shouldWayMakerRespond(message)) {
-            this.showTyping();
+        try {
+            const message = this.messageInput?.value?.trim();
+            if (!message) return;
             
-            try {
-                const response = await this.callDifyAPI(message);
-                this.hideTyping();
+            // Check if we're in edit mode
+            if (this.editingMessageId) {
+                this.saveMessageEdit(message);
+                return;
+            }
+            
+            this.addMessageToUI(message, 'user', this.userInfo.name);
+            await this.broadcastMessage(message, 'user', this.userInfo.name);
+            
+            this.messageInput.value = '';
+            
+            const lowerMessage = message.toLowerCase();
+            let historyType = 'Message';
+            let historyIcon = '💬';
+            
+            if (lowerMessage.includes('bible') || lowerMessage.includes('scripture') || lowerMessage.includes('verse')) {
+                historyType = 'Bible Study';
+                historyIcon = '📖';
+            } else if (lowerMessage.includes('prayer') || lowerMessage.includes('pray')) {
+                historyType = 'Prayer Request';
+                historyIcon = '🙏';
+            }
+            
+            this.addToHistory(historyType, message, historyIcon);
+            
+            if (this.shouldWayMakerRespond(message)) {
+                this.showTyping();
                 
-                if (response && response !== '(silence)') {
-                    this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
-                    await this.broadcastMessage(response, 'assistant', 'WayMaker AI', true);
-                    this.updateApiStatus('connected', 'Response received');
-                } else {
+                try {
+                    const response = await this.callDifyAPI(message);
+                    this.hideTyping();
+                    
+                    if (response && response !== '(silence)') {
+                        this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
+                        await this.broadcastMessage(response, 'assistant', 'WayMaker AI', true);
+                        this.updateApiStatus('connected', 'Response received');
+                    } else {
+                        const fallback = this.getFallbackResponse(message);
+                        if (fallback !== '(silence)') {
+                            this.addMessageToUI(fallback, 'assistant', 'WayMaker AI', true);
+                            await this.broadcastMessage(fallback, 'assistant', 'WayMaker AI', true);
+                            this.updateApiStatus('fallback', 'Using fallback response');
+                        }
+                    }
+                } catch (error) {
+                    this.hideTyping();
+                    console.error('❌ Dify API Error:', error);
                     const fallback = this.getFallbackResponse(message);
                     if (fallback !== '(silence)') {
                         this.addMessageToUI(fallback, 'assistant', 'WayMaker AI', true);
                         await this.broadcastMessage(fallback, 'assistant', 'WayMaker AI', true);
-                        this.updateApiStatus('fallback', 'Using fallback response');
                     }
+                    this.updateApiStatus('fallback', 'API error - using fallback');
                 }
-            } catch (error) {
-                this.hideTyping();
-                console.error('❌ Dify API Error:', error);
-                const fallback = this.getFallbackResponse(message);
-                if (fallback !== '(silence)') {
-                    this.addMessageToUI(fallback, 'assistant', 'WayMaker AI', true);
-                    await this.broadcastMessage(fallback, 'assistant', 'WayMaker AI', true);
-                }
-                this.updateApiStatus('fallback', 'API error - using fallback');
             }
+        } catch (error) {
+            console.error('❌ Error sending message:', error);
         }
     }
     
@@ -1101,238 +1299,305 @@ class WayMakerGroupChat {
     addMessageToUI(content, type, sender, shouldStream = false) {
         if (content === '(silence)') return;
         
-        const messageDiv = document.createElement('div');
-        const messageId = 'msg_' + (++this.messageCounter);
-        messageDiv.id = messageId;
-        messageDiv.className = 'message group';
-        
-        const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-        const isUser = type === 'user';
-        const isCurrentUser = sender === this.userInfo.name;
-        
-        // Enhanced message with edit/delete functionality
-        messageDiv.innerHTML = 
-            '<div class="flex ' + (isCurrentUser ? 'justify-end' : 'justify-start') + '">' +
-                '<div class="max-w-2xl">' +
-                    '<div class="flex justify-between items-center mb-1 text-xs text-gray-400">' +
-                        '<strong class="text-' + (isUser ? (isCurrentUser ? 'yellow' : 'blue') : 'green') + '-400">' + sender + (isCurrentUser ? ' (you)' : '') + '</strong>' +
-                        '<div class="flex items-center gap-2">' +
-                            '<span>' + time + '</span>' +
-                            (isCurrentUser && isUser ? 
-                                '<div class="message-actions flex gap-1 opacity-0">' +
-                                    '<button class="action-button edit" onclick="chat.startEditMessage(\'' + messageId + '\')">✏️</button>' +
-                                    '<button class="action-button delete" onclick="chat.deleteMessage(\'' + messageId + '\')">❌</button>' +
-                                '</div>' : '') +
+        try {
+            const messageDiv = document.createElement('div');
+            const messageId = 'msg_' + (++this.messageCounter);
+            messageDiv.id = messageId;
+            messageDiv.className = 'message group';
+            
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            const isUser = type === 'user';
+            const isCurrentUser = sender === this.userInfo.name;
+            
+            // Enhanced message with edit/delete functionality
+            messageDiv.innerHTML = 
+                '<div class="flex ' + (isCurrentUser ? 'justify-end' : 'justify-start') + '">' +
+                    '<div class="max-w-2xl">' +
+                        '<div class="flex justify-between items-center mb-1 text-xs text-gray-400">' +
+                            '<strong class="text-' + (isUser ? (isCurrentUser ? 'yellow' : 'blue') : 'green') + '-400">' + sender + (isCurrentUser ? ' (you)' : '') + '</strong>' +
+                            '<div class="flex items-center gap-2">' +
+                                '<span>' + time + '</span>' +
+                                (isCurrentUser && isUser ? 
+                                    '<div class="message-actions flex gap-1 opacity-0">' +
+                                        '<button class="action-button edit" onclick="chat.startEditMessage(\'' + messageId + '\')">✏️</button>' +
+                                        '<button class="action-button delete" onclick="chat.deleteMessage(\'' + messageId + '\')">❌</button>' +
+                                    '</div>' : '') +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="message-content compact-message p-2 rounded-xl whitespace-pre-wrap ' + 
+                            (isUser ? (isCurrentUser ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white') : 'bg-gray-800 text-gray-100 border border-gray-700') + '">' +
+                            (shouldStream ? '' : content) +
                         '</div>' +
                     '</div>' +
-                    '<div class="message-content compact-message p-2 rounded-xl whitespace-pre-wrap ' + 
-                        (isUser ? (isCurrentUser ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white') : 'bg-gray-800 text-gray-100 border border-gray-700') + '\">' +
-                        (shouldStream ? '' : content) +
-                    '</div>' +
-                '</div>' +
-            '</div>';
-        
-        this.messagesContainer.appendChild(messageDiv);
-        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
-        
-        if (shouldStream && type === 'assistant') {
-            this.typeMessage(messageId, content);
+                '</div>';
+            
+            if (this.messagesContainer) {
+                this.messagesContainer.appendChild(messageDiv);
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+            
+            if (shouldStream && type === 'assistant') {
+                this.typeMessage(messageId, content);
+            }
+            
+            return messageId;
+        } catch (error) {
+            console.error('❌ Error adding message to UI:', error);
         }
-        
-        return messageId;
     }
 
     // Enhanced Message Edit/Delete Functionality
     startEditMessage(messageId) {
-        if (this.editingMessageId) {
-            this.cancelMessageEdit();
+        try {
+            if (this.editingMessageId) {
+                this.cancelMessageEdit();
+            }
+            
+            const messageEl = document.getElementById(messageId);
+            const contentEl = messageEl?.querySelector('.message-content');
+            
+            if (!messageEl || !contentEl) return;
+            
+            // Store original content
+            this.originalMessageContent = contentEl.textContent;
+            this.editingMessageId = messageId;
+            
+            // Add edit mode styling
+            messageEl.classList.add('edit-mode');
+            
+            // Replace content with input
+            contentEl.innerHTML = `
+                <textarea class="w-full bg-gray-600 text-white p-2 rounded border border-blue-400 resize-none" 
+                          rows="3" id="editInput">${this.originalMessageContent}</textarea>
+                <div class="edit-controls">
+                    <button class="action-button" onclick="chat.saveMessageEdit()">💾 Save</button>
+                    <button class="action-button" onclick="chat.cancelMessageEdit()">❌ Cancel</button>
+                </div>
+            `;
+            
+            // Focus the input
+            const editInput = document.getElementById('editInput');
+            if (editInput) {
+                editInput.focus();
+                editInput.setSelectionRange(editInput.value.length, editInput.value.length);
+            }
+            
+            // Update message input behavior
+            if (this.messageInput) {
+                this.messageInput.placeholder = "Click Save to confirm edit, or Cancel to revert...";
+            }
+            if (this.sendButton) {
+                this.sendButton.textContent = "Save Edit";
+            }
+        } catch (error) {
+            console.error('❌ Error starting message edit:', error);
         }
-        
-        const messageEl = document.getElementById(messageId);
-        const contentEl = messageEl.querySelector('.message-content');
-        
-        // Store original content
-        this.originalMessageContent = contentEl.textContent;
-        this.editingMessageId = messageId;
-        
-        // Add edit mode styling
-        messageEl.classList.add('edit-mode');
-        
-        // Replace content with input
-        contentEl.innerHTML = `
-            <textarea class="w-full bg-gray-600 text-white p-2 rounded border border-blue-400 resize-none" 
-                      rows="3" id="editInput">${this.originalMessageContent}</textarea>
-            <div class="edit-controls">
-                <button class="action-button" onclick="chat.saveMessageEdit()">💾 Save</button>
-                <button class="action-button" onclick="chat.cancelMessageEdit()">❌ Cancel</button>
-            </div>
-        `;
-        
-        // Focus the input
-        const editInput = document.getElementById('editInput');
-        editInput.focus();
-        editInput.setSelectionRange(editInput.value.length, editInput.value.length);
-        
-        // Update message input behavior
-        this.messageInput.placeholder = "Click Save to confirm edit, or Cancel to revert...";
-        this.sendButton.textContent = "Save Edit";
     }
     
     saveMessageEdit(newContent = null) {
-        if (!this.editingMessageId) return;
-        
-        const messageEl = document.getElementById(this.editingMessageId);
-        const editInput = document.getElementById('editInput');
-        const contentEl = messageEl.querySelector('.message-content');
-        
-        const updatedContent = newContent || editInput?.value || this.messageInput.value;
-        
-        if (!updatedContent.trim()) {
-            alert('Message cannot be empty!');
-            return;
+        try {
+            if (!this.editingMessageId) return;
+            
+            const messageEl = document.getElementById(this.editingMessageId);
+            const editInput = document.getElementById('editInput');
+            const contentEl = messageEl?.querySelector('.message-content');
+            
+            if (!messageEl || !contentEl) return;
+            
+            const updatedContent = newContent || editInput?.value || this.messageInput?.value;
+            
+            if (!updatedContent?.trim()) {
+                alert('Message cannot be empty!');
+                return;
+            }
+            
+            // Update the message content
+            contentEl.innerHTML = updatedContent;
+            
+            // Remove edit mode
+            messageEl.classList.remove('edit-mode');
+            
+            // Reset editing state
+            this.editingMessageId = null;
+            this.originalMessageContent = '';
+            if (this.messageInput) {
+                this.messageInput.placeholder = "Share with community, ask questions, or request prayer...";
+                this.messageInput.value = '';
+            }
+            if (this.sendButton) {
+                this.sendButton.textContent = "Send";
+            }
+            
+            // Show notification
+            this.showNotification('✅ Message updated successfully!', 'green');
+            
+            // Add to history
+            this.addToHistory('Message Edit', updatedContent, '✏️');
+        } catch (error) {
+            console.error('❌ Error saving message edit:', error);
         }
-        
-        // Update the message content
-        contentEl.innerHTML = updatedContent;
-        
-        // Remove edit mode
-        messageEl.classList.remove('edit-mode');
-        
-        // Reset editing state
-        this.editingMessageId = null;
-        this.originalMessageContent = '';
-        this.messageInput.placeholder = "Share with community, ask questions, or request prayer...";
-        this.messageInput.value = '';
-        this.sendButton.textContent = "Send";
-        
-        // Show notification
-        this.showNotification('✅ Message updated successfully!', 'green');
-        
-        // Add to history
-        this.addToHistory('Message Edit', updatedContent, '✏️');
     }
     
     cancelMessageEdit() {
-        if (!this.editingMessageId) return;
-        
-        const messageEl = document.getElementById(this.editingMessageId);
-        const contentEl = messageEl.querySelector('.message-content');
-        
-        // Restore original content
-        contentEl.innerHTML = this.originalMessageContent;
-        
-        // Remove edit mode
-        messageEl.classList.remove('edit-mode');
-        
-        // Reset editing state
-        this.editingMessageId = null;
-        this.originalMessageContent = '';
-        this.messageInput.placeholder = "Share with community, ask questions, or request prayer...";
-        this.messageInput.value = '';
-        this.sendButton.textContent = "Send";
-        
-        // Show notification
-        this.showNotification('↩️ Edit cancelled', 'gray');
+        try {
+            if (!this.editingMessageId) return;
+            
+            const messageEl = document.getElementById(this.editingMessageId);
+            const contentEl = messageEl?.querySelector('.message-content');
+            
+            if (!messageEl || !contentEl) return;
+            
+            // Restore original content
+            contentEl.innerHTML = this.originalMessageContent;
+            
+            // Remove edit mode
+            messageEl.classList.remove('edit-mode');
+            
+            // Reset editing state
+            this.editingMessageId = null;
+            this.originalMessageContent = '';
+            if (this.messageInput) {
+                this.messageInput.placeholder = "Share with community, ask questions, or request prayer...";
+                this.messageInput.value = '';
+            }
+            if (this.sendButton) {
+                this.sendButton.textContent = "Send";
+            }
+            
+            // Show notification
+            this.showNotification('↩️ Edit cancelled', 'gray');
+        } catch (error) {
+            console.error('❌ Error cancelling message edit:', error);
+        }
     }
     
     deleteMessage(messageId) {
-        const messageEl = document.getElementById(messageId);
-        const contentEl = messageEl.querySelector('.message-content');
-        const messageContent = contentEl.textContent;
-        
-        if (confirm(`Delete this message?\n\n"${messageContent.substring(0, 100)}${messageContent.length > 100 ? '...' : '"}"`)) {
-            // Add deleted indicator
-            contentEl.innerHTML = '<em class="text-gray-500">This message was deleted</em>';
-            contentEl.className = contentEl.className.replace(/bg-\w+-\d+/, 'bg-gray-600');
+        try {
+            const messageEl = document.getElementById(messageId);
+            const contentEl = messageEl?.querySelector('.message-content');
             
-            // Remove action buttons
-            const actionsEl = messageEl.querySelector('.message-actions');
-            if (actionsEl) actionsEl.remove();
+            if (!messageEl || !contentEl) return;
             
-            // Show notification
-            this.showNotification('🗑️ Message deleted', 'red');
+            const messageContent = contentEl.textContent;
             
-            // Add to history
-            this.addToHistory('Message Deletion', messageContent.substring(0, 50), '🗑️');
+            if (confirm(`Delete this message?\n\n"${messageContent.substring(0, 100)}${messageContent.length > 100 ? '...' : ''}"`)) {
+                // Add deleted indicator
+                contentEl.innerHTML = '<em class="text-gray-500">This message was deleted</em>';
+                contentEl.className = contentEl.className.replace(/bg-\w+-\d+/, 'bg-gray-600');
+                
+                // Remove action buttons
+                const actionsEl = messageEl.querySelector('.message-actions');
+                if (actionsEl) actionsEl.remove();
+                
+                // Show notification
+                this.showNotification('🗑️ Message deleted', 'red');
+                
+                // Add to history
+                this.addToHistory('Message Deletion', messageContent.substring(0, 50), '🗑️');
+            }
+        } catch (error) {
+            console.error('❌ Error deleting message:', error);
         }
     }
     
     showNotification(message, color = 'blue') {
-        const notification = document.createElement('div');
-        notification.className = `fixed top-4 right-4 bg-${color}-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm`;
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
+        try {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 bg-${color}-600 text-white px-3 py-2 rounded-lg shadow-lg z-50 text-sm`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+        } catch (error) {
+            console.error('❌ Error showing notification:', error);
+        }
     }
     
     async typeMessage(messageId, fullText) {
-        const messageElement = document.getElementById(messageId);
-        const contentDiv = messageElement.querySelector('.message-content');
-        
-        contentDiv.innerHTML = '<span class="typing-cursor">▊</span>';
-        
-        let displayedText = '';
-        const words = fullText.split(' ');
-        
-        const baseDelay = 25;
-        const wordDelay = 80;
-        const punctuationDelay = 150;
-        
-        for (let i = 0; i < words.length; i++) {
-            const word = words[i];
-            displayedText += (i > 0 ? ' ' : '') + word;
+        try {
+            const messageElement = document.getElementById(messageId);
+            const contentDiv = messageElement?.querySelector('.message-content');
             
-            contentDiv.innerHTML = displayedText + '<span class="typing-cursor animate-pulse">▊</span>';
-            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            if (!contentDiv) return;
             
-            let delay = baseDelay * word.length + wordDelay;
+            contentDiv.innerHTML = '<span class="typing-cursor">▊</span>';
             
-            if (word.includes('.') || word.includes('!') || word.includes('?') || word.includes(':')) {
-                delay += punctuationDelay;
+            let displayedText = '';
+            const words = fullText.split(' ');
+            
+            const baseDelay = 25;
+            const wordDelay = 80;
+            const punctuationDelay = 150;
+            
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i];
+                displayedText += (i > 0 ? ' ' : '') + word;
+                
+                contentDiv.innerHTML = displayedText + '<span class="typing-cursor animate-pulse">▊</span>';
+                if (this.messagesContainer) {
+                    this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                }
+                
+                let delay = baseDelay * word.length + wordDelay;
+                
+                if (word.includes('.') || word.includes('!') || word.includes('?') || word.includes(':')) {
+                    delay += punctuationDelay;
+                }
+                
+                if (word.match(/\d+:\d+/) || word.includes('NIV') || word.includes('ESV')) {
+                    delay += punctuationDelay;
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
             
-            if (word.match(/\d+:\d+/) || word.includes('NIV') || word.includes('ESV')) {
-                delay += punctuationDelay;
-            }
+            contentDiv.innerHTML = displayedText;
             
-            await new Promise(resolve => setTimeout(resolve, delay));
+            contentDiv.style.transform = 'scale(1.01)';
+            setTimeout(() => {
+                contentDiv.style.transform = 'scale(1)';
+                contentDiv.style.transition = 'transform 0.2s ease';
+            }, 200);
+        } catch (error) {
+            console.error('❌ Error typing message:', error);
         }
-        
-        contentDiv.innerHTML = displayedText;
-        
-        contentDiv.style.transform = 'scale(1.01)';
-        setTimeout(() => {
-            contentDiv.style.transform = 'scale(1)';
-            contentDiv.style.transition = 'transform 0.2s ease';
-        }, 200);
     }
     
     showTyping() {
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typing';
-        typingDiv.className = 'flex justify-start';
-        typingDiv.innerHTML = 
-            '<div class="max-w-2xl">' +
-                '<div class="p-2 bg-gray-800 border border-gray-700 rounded-xl">' +
-                    '<div class="flex items-center gap-2 text-gray-400 italic text-sm">' +
-                        '<div class="flex gap-1">' +
-                            '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>' +
-                            '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>' +
-                            '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>' +
+        try {
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typing';
+            typingDiv.className = 'flex justify-start';
+            typingDiv.innerHTML = 
+                '<div class="max-w-2xl">' +
+                    '<div class="p-2 bg-gray-800 border border-gray-700 rounded-xl">' +
+                        '<div class="flex items-center gap-2 text-gray-400 italic text-sm">' +
+                            '<div class="flex gap-1">' +
+                                '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>' +
+                                '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>' +
+                                '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>' +
+                            '</div>' +
+                            '<span>WayMaker AI is reflecting...</span>' +
                         '</div>' +
-                        '<span>WayMaker AI is reflecting...</span>' +
                     '</div>' +
-                '</div>' +
-            '</div>';
-        
-        this.messagesContainer.appendChild(typingDiv);
-        this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                '</div>';
+            
+            if (this.messagesContainer) {
+                this.messagesContainer.appendChild(typingDiv);
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            }
+        } catch (error) {
+            console.error('❌ Error showing typing indicator:', error);
+        }
     }
     
     hideTyping() {
-        const typingDiv = document.getElementById('typing');
-        if (typingDiv) {
-            typingDiv.remove();
+        try {
+            const typingDiv = document.getElementById('typing');
+            if (typingDiv) {
+                typingDiv.remove();
+            }
+        } catch (error) {
+            console.error('❌ Error hiding typing indicator:', error);
         }
     }
     
@@ -1340,7 +1605,9 @@ class WayMakerGroupChat {
     
     clearChat() {
         if (confirm('Clear all messages from this chat session?\n\nThis will only clear your local view - other community members will still see their messages.')) {
-            this.messagesContainer.innerHTML = '';
+            if (this.messagesContainer) {
+                this.messagesContainer.innerHTML = '';
+            }
             this.messageCounter = 0;
             this.addWelcomeMessage();
             this.showNotification('🗑️ Chat cleared locally', 'gray');
@@ -1357,18 +1624,24 @@ class WayMakerGroupChat {
             recognition.lang = this.userInfo.language === 'Spanish' ? 'es-ES' : 'en-US';
             
             recognition.onstart = () => {
-                this.voiceBtn.textContent = '🛑';
-                this.voiceBtn.style.backgroundColor = '#ef4444';
+                if (this.voiceBtn) {
+                    this.voiceBtn.textContent = '🛑';
+                    this.voiceBtn.style.backgroundColor = '#ef4444';
+                }
             };
             
             recognition.onresult = (event) => {
-                this.messageInput.value = event.results[0][0].transcript;
-                this.messageInput.focus();
+                if (this.messageInput) {
+                    this.messageInput.value = event.results[0][0].transcript;
+                    this.messageInput.focus();
+                }
             };
             
             recognition.onend = () => {
-                this.voiceBtn.textContent = '🎤';
-                this.voiceBtn.style.backgroundColor = '';
+                if (this.voiceBtn) {
+                    this.voiceBtn.textContent = '🎤';
+                    this.voiceBtn.style.backgroundColor = '';
+                }
             };
             
             recognition.start();
@@ -1433,33 +1706,39 @@ class WayMakerGroupChat {
     }
     
     exportConversation() {
-        const messages = [];
-        const messageElements = this.messagesContainer.querySelectorAll('.message');
-        
-        messageElements.forEach(el => {
-            if (el.id === 'typing') return;
+        try {
+            const messages = [];
+            const messageElements = this.messagesContainer?.querySelectorAll('.message');
             
-            const sender = el.querySelector('strong').textContent;
-            const content = el.querySelector('.message-content').textContent;
-            const timestamp = el.querySelector('span').textContent;
+            if (messageElements) {
+                messageElements.forEach(el => {
+                    if (el.id === 'typing') return;
+                    
+                    const sender = el.querySelector('strong')?.textContent || 'Unknown';
+                    const content = el.querySelector('.message-content')?.textContent || '';
+                    const timestamp = el.querySelector('span')?.textContent || '';
+                    
+                    messages.push('[' + timestamp + '] ' + sender + ': ' + content);
+                });
+            }
             
-            messages.push('[' + timestamp + '] ' + sender + ': ' + content);
-        });
-        
-        const sessionInfo = `Enhanced Group Chat Export\nUser: ${this.userInfo.name}\nAge: ${this.userInfo.age}\nType: ${this.userInfo.type}\nAccess: ${this.userInfo.access}\nLanguage: ${this.userInfo.language}`;
-        
-        const exportText = `WayMaker AI Enhanced Group Chat Export\n${'='.repeat(50)}\nExported: ${new Date().toLocaleString()}\n\n${sessionInfo}\n\n${'='.repeat(50)}\n\n${messages.join('\n\n')}`;
-        
-        const blob = new Blob([exportText], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `waymaker-enhanced-chat-${this.userInfo.name}-${new Date().toISOString().split('T')[0]}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+            const sessionInfo = `Enhanced Group Chat Export\nUser: ${this.userInfo.name}\nAge: ${this.userInfo.age}\nType: ${this.userInfo.type}\nAccess: ${this.userInfo.access}\nLanguage: ${this.userInfo.language}`;
+            
+            const exportText = `WayMaker AI Enhanced Group Chat Export\n${'='.repeat(50)}\nExported: ${new Date().toLocaleString()}\n\n${sessionInfo}\n\n${'='.repeat(50)}\n\n${messages.join('\n\n')}`;
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `waymaker-enhanced-chat-${this.userInfo.name}-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error('❌ Error exporting conversation:', error);
+        }
     }
     
     startNewSession() {
@@ -1488,18 +1767,30 @@ let chat;
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 DOM loaded, starting enhanced group chat...');
     
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.get('name')) {
-        console.log('No user session found, redirecting to auth...');
-        window.location.href = 'auth.html';
-        return;
+    try {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (!urlParams.get('name')) {
+            console.log('No user session found, redirecting to auth...');
+            window.location.href = 'auth.html';
+            return;
+        }
+        
+        chat = new WayMakerGroupChat();
+        
+        const style = document.createElement('style');
+        style.textContent = '.message:hover .message-actions { opacity: 1 !important; }';
+        document.head.appendChild(style);
+        
+        console.log('✅ WayMaker AI Enhanced Community Chat initialized successfully');
+    } catch (error) {
+        console.error('❌ Failed to initialize chat:', error);
+        
+        // Show error message to user
+        const userInfoDisplay = document.getElementById('userInfoDisplay');
+        if (userInfoDisplay) {
+            userInfoDisplay.innerHTML = '<span class="text-red-400">⚠️ Failed to initialize chat. Please refresh the page.</span>';
+        }
     }
-    
-    chat = new WayMakerGroupChat();
-    
-    const style = document.createElement('style');
-    style.textContent = '.message:hover .message-actions { opacity: 1 !important; }';
-    document.head.appendChild(style);
 });
 
 console.log('✅ WayMaker AI Enhanced Community Chat script loaded successfully');
