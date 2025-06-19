@@ -230,6 +230,23 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Error state styling */
+        .error-state {
+            background: #dc2626;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem;
+        }
+
+        .success-state {
+            background: #059669;
+            color: white;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            margin: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen">
@@ -311,9 +328,9 @@
                 <div class="p-2 border-b border-gray-600">
                     <h4 class="font-semibold text-white mb-1 text-sm">🔗 Connection Status</h4>
                     <ul class="text-xs text-gray-300 space-y-0.5">
-                        <li id="apiStatusText">✓ Connected to Dify API</li>
-                        <li id="supabaseStatusText">✓ Real-time chat active</li>
-                        <li id="lastApiCall">Last response: Just now</li>
+                        <li id="apiStatusText">🔄 Testing connection...</li>
+                        <li id="supabaseStatusText">🔄 Initializing real-time...</li>
+                        <li id="lastApiCall">Last response: Initializing...</li>
                     </ul>
                 </div>
             </div>
@@ -345,7 +362,7 @@
             <div class="border-t border-gray-700 bg-gray-800 p-2">
                 <div class="flex gap-1 mb-2">
                     <div class="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300" id="userInfoDisplay">
-                        <span class="loading-spinner"></span> Loading session info...
+                        <span class="loading-spinner"></span> Initializing...
                     </div>
                     <input type="file" id="fileInput" multiple class="hidden">
                     <button id="fileBtn" class="px-2 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded text-xs border-none cursor-pointer" title="Upload files">📁</button>
@@ -409,7 +426,7 @@ class WayMakerGroupChat {
         this.userInfo = this.extractUserInfoFromURL();
         console.log('👤 User info extracted:', this.userInfo);
         
-        // Start initialization
+        // Start initialization with better error handling
         this.init().catch(error => {
             console.error('❌ Initialization failed:', error);
             this.initializationError = error;
@@ -437,72 +454,158 @@ class WayMakerGroupChat {
         try {
             console.log('✅ Starting initialization sequence...');
             
-            // Step 1: Update UI immediately
+            // Step 1: Update status immediately
+            this.updateInitializationStatus('🔧 Updating interface...');
+            
+            // Step 2: Update UI immediately
             this.updateUserInterface();
             console.log('✅ UI updated');
             
-            // Step 2: Bind elements and events
+            // Step 3: Bind elements and events (critical for basic functionality)
+            this.updateInitializationStatus('📎 Binding controls...');
             this.bindElements();
             this.attachEvents();
             console.log('✅ Events attached');
             
-            // Step 3: Load history (synchronous)
+            // Step 4: Load history (synchronous, quick)
+            this.updateInitializationStatus('📜 Loading history...');
             this.loadHistoryCategories();
             this.updateHistoryDisplay();
             console.log('✅ History loaded');
             
-            // Step 4: Add welcome message
+            // Step 5: Add welcome message (immediate feedback)
+            this.updateInitializationStatus('👋 Adding welcome message...');
             this.addWelcomeMessage();
             console.log('✅ Welcome message added');
             
-            // Step 5: Initialize async components with proper error handling
+            // Step 6: Update session info immediately
+            this.updateSessionInfo();
+            console.log('✅ Session info updated');
+            
+            // Step 7: Initialize async components (non-blocking)
+            this.updateInitializationStatus('🌐 Connecting to services...');
             await this.initializeAsyncComponents();
             
             // Mark as initialized
             this.isInitialized = true;
+            this.updateInitializationStatus('✅ Ready!');
             console.log('🎉 Enhanced group chat initialized successfully!');
             
-            // Update session info
-            this.updateSessionInfo();
+            // Final status update
+            setTimeout(() => {
+                this.updateInitializationStatus(`${this.userInfo.name} (${this.userInfo.age}, ${this.capitalizeFirst(this.userInfo.type.replace('_', ' '))})`);
+            }, 2000);
             
         } catch (error) {
             console.error('❌ Initialization error:', error);
             this.initializationError = error;
+            this.showInitializationError(error);
             throw error;
+        }
+    }
+    
+    updateInitializationStatus(message) {
+        try {
+            const userInfoDisplay = document.getElementById('userInfoDisplay');
+            if (userInfoDisplay) {
+                if (message.startsWith('✅')) {
+                    userInfoDisplay.innerHTML = `<span class="text-green-400">${message}</span>`;
+                } else if (message.startsWith('❌') || message.startsWith('⚠️')) {
+                    userInfoDisplay.innerHTML = `<span class="text-red-400">${message}</span>`;
+                } else if (message.startsWith('🔄') || message.startsWith('🔧') || message.startsWith('📎') || message.startsWith('📜') || message.startsWith('👋') || message.startsWith('🌐')) {
+                    userInfoDisplay.innerHTML = `<span class="loading-spinner"></span> ${message}`;
+                } else {
+                    userInfoDisplay.textContent = message;
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error updating initialization status:', error);
         }
     }
     
     async initializeAsyncComponents() {
         console.log('🔄 Initializing async components...');
         
-        // Initialize Supabase (non-blocking)
-        this.initializeSupabase().catch(error => {
-            console.warn('⚠️ Supabase initialization failed:', error);
-            this.supabaseStatusText.textContent = '⚠️ Real-time chat unavailable';
+        try {
+            // Initialize Supabase with timeout
+            const supabasePromise = Promise.race([
+                this.initializeSupabase(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('Supabase timeout')), 10000))
+            ]);
+            
+            await supabasePromise.catch(error => {
+                console.warn('⚠️ Supabase initialization failed:', error);
+                this.updateConnectionStatus('supabase', false, 'Real-time chat unavailable');
+                this.startLocalMode();
+            });
+            
+            // Test API connection with timeout
+            const apiPromise = Promise.race([
+                this.testApiConnection(),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('API timeout')), 8000))
+            ]);
+            
+            await apiPromise.catch(error => {
+                console.warn('⚠️ API test failed:', error);
+                this.updateApiStatus('fallback', 'API unavailable - using fallback');
+            });
+            
+            console.log('✅ Async components initialized');
+        } catch (error) {
+            console.error('❌ Async component initialization failed:', error);
+            // Continue with local mode
             this.startLocalMode();
-        });
-        
-        // Test API connection (non-blocking)
-        this.testApiConnection().catch(error => {
-            console.warn('⚠️ API test failed:', error);
-            this.updateApiStatus('fallback', 'API unavailable - using fallback');
-        });
+        }
+    }
+    
+    updateConnectionStatus(service, connected, message) {
+        try {
+            if (service === 'supabase') {
+                const el = document.getElementById('supabaseStatusText');
+                if (el) {
+                    el.textContent = connected ? '✓ Real-time chat active' : `⚠️ ${message}`;
+                    el.className = connected ? 'text-green-400' : 'text-yellow-400';
+                }
+            } else if (service === 'api') {
+                const el = document.getElementById('apiStatusText');
+                if (el) {
+                    el.textContent = connected ? '✓ Connected to Dify API' : `⚠️ ${message}`;
+                    el.className = connected ? 'text-green-400' : 'text-yellow-400';
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error updating connection status:', error);
+        }
     }
     
     showInitializationError(error) {
-        const userInfoDisplay = document.getElementById('userInfoDisplay');
-        if (userInfoDisplay) {
-            userInfoDisplay.innerHTML = `<span class="text-red-400">⚠️ Initialization error: ${error.message}</span>`;
-        }
+        console.error('❌ Showing initialization error:', error);
+        
+        this.updateInitializationStatus(`⚠️ Error: ${error.message}`);
+        
+        // Show error notification
+        this.showNotification(`Initialization error: ${error.message}. Using offline mode.`, 'red');
         
         // Still try to provide basic functionality
-        this.startLocalMode();
+        setTimeout(() => {
+            this.startLocalMode();
+            this.updateInitializationStatus(`${this.userInfo.name} (Offline Mode)`);
+        }, 3000);
     }
     
     updateSessionInfo() {
-        const userInfoDisplay = document.getElementById('userInfoDisplay');
-        if (userInfoDisplay && this.userInfo) {
-            userInfoDisplay.textContent = `${this.userInfo.name} (${this.userInfo.age}, ${this.capitalizeFirst(this.userInfo.type.replace('_', ' '))})`;
+        try {
+            console.log('📱 Updating session info...');
+            
+            const userInfoDisplay = document.getElementById('userInfoDisplay');
+            if (userInfoDisplay && this.userInfo) {
+                const sessionText = `${this.userInfo.name} (${this.userInfo.age}, ${this.capitalizeFirst(this.userInfo.type.replace('_', ' '))})`;
+                userInfoDisplay.textContent = sessionText;
+            }
+            
+            console.log('✅ Session info updated successfully');
+        } catch (error) {
+            console.error('❌ Error updating session info:', error);
         }
     }
     
@@ -571,6 +674,17 @@ class WayMakerGroupChat {
             this.supabaseStatusText = document.getElementById('supabaseStatusText');
             this.lastApiCall = document.getElementById('lastApiCall');
             
+            // Validate critical elements
+            if (!this.messagesContainer) {
+                throw new Error('Messages container not found');
+            }
+            if (!this.messageInput) {
+                throw new Error('Message input not found');
+            }
+            if (!this.sendButton) {
+                throw new Error('Send button not found');
+            }
+            
             console.log('✅ DOM elements bound successfully');
         } catch (error) {
             console.error('❌ Error binding elements:', error);
@@ -588,12 +702,15 @@ class WayMakerGroupChat {
             
             if (this.messageInput) {
                 this.messageInput.onkeypress = (e) => {
-                    if (e.key === 'Enter') this.sendMessage();
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        this.sendMessage();
+                    }
                 };
             }
             
-            if (this.fileBtn) {
-                this.fileBtn.onclick = () => this.fileInput?.click();
+            if (this.fileBtn && this.fileInput) {
+                this.fileBtn.onclick = () => this.fileInput.click();
             }
             
             if (this.voiceBtn) {
@@ -666,6 +783,7 @@ class WayMakerGroupChat {
 
             if (response.ok) {
                 this.updateApiStatus('connected', 'Connected to Dify API');
+                this.updateConnectionStatus('api', true, 'Connected');
                 console.log('✅ API connection test successful');
                 return true;
             } else {
@@ -674,6 +792,7 @@ class WayMakerGroupChat {
         } catch (error) {
             console.warn('⚠️ API connection test failed:', error);
             this.updateApiStatus('fallback', 'Using fallback responses');
+            this.updateConnectionStatus('api', false, 'Using fallback responses');
             return false;
         }
     }
@@ -682,32 +801,36 @@ class WayMakerGroupChat {
         try {
             const statusEl = this.apiStatus;
             const textEl = this.apiStatusText;
+            const lastCallEl = this.lastApiCall;
             
-            if (!statusEl || !textEl) return;
-            
-            statusEl.className = `api-status ${status}`;
-            
-            switch(status) {
-                case 'connected':
-                    statusEl.textContent = '✓ Live API';
-                    textEl.textContent = '✓ Connected to Dify API';
-                    this.lastApiSuccess = new Date();
-                    this.apiFailureCount = 0;
-                    break;
-                case 'fallback':
-                    statusEl.textContent = '⚠ Fallback';
-                    textEl.textContent = '⚠ Using fallback responses';
-                    this.apiFailureCount++;
-                    break;
-                case 'disconnected':
-                    statusEl.textContent = '✗ Offline';
-                    textEl.textContent = '✗ API connection failed';
-                    this.apiFailureCount++;
-                    break;
+            if (statusEl) {
+                statusEl.className = `api-status ${status}`;
+                
+                switch(status) {
+                    case 'connected':
+                        statusEl.textContent = '✓ Live API';
+                        this.lastApiSuccess = new Date();
+                        this.apiFailureCount = 0;
+                        break;
+                    case 'fallback':
+                        statusEl.textContent = '⚠ Fallback';
+                        this.apiFailureCount++;
+                        break;
+                    case 'disconnected':
+                        statusEl.textContent = '✗ Offline';
+                        this.apiFailureCount++;
+                        break;
+                }
             }
             
-            if (this.lastApiCall) {
-                this.lastApiCall.textContent = `Last response: ${this.getTimeAgo(this.lastApiSuccess || new Date())}`;
+            if (textEl) {
+                textEl.textContent = message;
+            }
+            
+            if (lastCallEl) {
+                const timeText = this.lastApiSuccess ? 
+                    this.getTimeAgo(this.lastApiSuccess) : 'Initializing...';
+                lastCallEl.textContent = `Last response: ${timeText}`;
             }
         } catch (error) {
             console.error('❌ Error updating API status:', error);
@@ -730,15 +853,11 @@ class WayMakerGroupChat {
             await this.startSupabasePresence();
             await this.startSupabaseMessaging();
             
-            if (this.supabaseStatusText) {
-                this.supabaseStatusText.textContent = '✓ Real-time chat active';
-            }
+            this.updateConnectionStatus('supabase', true, 'Real-time chat active');
             
         } catch (error) {
             console.error('❌ Supabase initialization failed:', error);
-            if (this.supabaseStatusText) {
-                this.supabaseStatusText.textContent = '✗ Real-time chat unavailable';
-            }
+            this.updateConnectionStatus('supabase', false, 'Real-time chat unavailable');
             this.startLocalMode();
         }
     }
