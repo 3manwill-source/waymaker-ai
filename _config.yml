@@ -21,4 +21,3 @@ highlighter: rouge
 exclude:
   - README.md
   - .gitignore
-  - _config.yml
