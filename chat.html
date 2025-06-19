@@ -102,18 +102,50 @@
             background: #4b5563;
         }
         
-        #historyList::-webkit-scrollbar {
-            width: 3px;
+        /* MINIMAL SCROLLBAR STYLING */
+        ::-webkit-scrollbar {
+            width: 2px;
         }
         
-        #historyList::-webkit-scrollbar-track {
-            background: #374151;
-            border-radius: 2px;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
         
-        #historyList::-webkit-scrollbar-thumb {
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 1px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
             background: #6b7280;
-            border-radius: 2px;
+        }
+        
+        /* Specific minimal scrollbars for different sections */
+        #historyList::-webkit-scrollbar,
+        #messagesContainer::-webkit-scrollbar {
+            width: 2px;
+        }
+        
+        #historyList::-webkit-scrollbar-track,
+        #messagesContainer::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #historyList::-webkit-scrollbar-thumb,
+        #messagesContainer::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 1px;
+        }
+        
+        #historyList::-webkit-scrollbar-thumb:hover,
+        #messagesContainer::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+        
+        /* Firefox minimal scrollbar */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #4b5563 transparent;
         }
         
         .chat-input {
@@ -247,17 +279,31 @@
             border-radius: 0.5rem;
             margin: 0.5rem;
         }
+
+        /* Optimized layout for better content visibility */
+        .chat-container {
+            height: calc(100vh - 75px);
+        }
+
+        .welcome-banner {
+            min-height: auto;
+            padding: 0.5rem;
+        }
+
+        .messages-area {
+            height: calc(100% - 120px);
+        }
     </style>
 </head>
 <body class="bg-gray-900 min-h-screen">
     
     <!-- Enhanced Header with User Info and Actions -->
-    <div class="bg-gray-800 border-b border-gray-700 p-3">
+    <div class="bg-gray-800 border-b border-gray-700 p-2">
         <div class="flex justify-between items-start">
             <div class="flex-1">
-                <h1 class="text-white text-xl font-bold flex items-center gap-2 mb-2">
+                <h1 class="text-white text-lg font-bold flex items-center gap-2 mb-1">
                     ✝️⚪ WayMaker AI - Enhanced Community Chat
-                    <span class="text-sm text-gray-300 font-normal">Your path to living God's will — step by step</span>
+                    <span class="text-xs text-gray-300 font-normal">Your path to living God's will — step by step</span>
                 </h1>
                 
                 <!-- Action Buttons in Header -->
@@ -286,7 +332,7 @@
     </div>
     
     <!-- Main Container -->
-    <div class="flex" style="height: calc(100vh - 85px);">
+    <div class="flex chat-container">
         
         <!-- Enhanced Full-Height Sidebar -->
         <div class="w-64 bg-gray-800 border-r border-gray-700 sidebar-full-height">
@@ -349,14 +395,14 @@
         <!-- Chat Area -->
         <div class="flex-1 flex flex-col bg-gray-900">
             <!-- Enhanced Welcome Banner -->
-            <div class="bg-blue-900/20 border-l-4 border-blue-400 p-2 m-2 rounded-r-lg">
+            <div class="bg-blue-900/20 border-l-4 border-blue-400 welcome-banner m-2 rounded-r-lg">
                 <p class="text-xs text-blue-300">
                     <strong>🌟 WayMaker AI Enhanced Community Chat!</strong> 
                     <span id="welcomeMessage">Real-time biblical guidance with full editing capabilities and live Dify API connection!</span>
                 </p>
             </div>
             
-            <div id="messagesContainer" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+            <div id="messagesContainer" class="flex-1 overflow-y-auto p-3 space-y-2 messages-area"></div>
             
             <!-- Compact Input Area -->
             <div class="border-t border-gray-700 bg-gray-800 p-2">
@@ -390,9 +436,9 @@ class WayMakerGroupChat {
     constructor() {
         console.log('🎯 Initializing WayMaker GroupChat...');
         
-        // Updated API configuration for live connection
+        // Updated API configuration with CORRECT API key
         this.apiUrl = 'https://waymaker.4children.3manwill.com/v1/chat-messages';
-        this.apiKey = 'app-Mfi59Fz3YkFakdCfToUGoRaK'; // Working API key
+        this.apiKey = 'app-JVPYbOZ4jHU8k0GeFxQARO5N'; // CORRECT API key
         this.conversationId = null;
         this.currentMessageId = null;
         this.messageCounter = 0;
