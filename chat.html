@@ -1372,26 +1372,18 @@ class WayMakerGroupChat {
             crisis_level = 'mild';
         }
         
-        // Enhanced payload with all required variables
-        const payload = {
-            inputs: {
-                user_name: this.userInfo.name,
-                user_age: this.userInfo.age,
-                emotion: crisis_level === 'serious' ? 'distressed' : crisis_level === 'mild' ? 'concerned' : 'peaceful',
-                topic: message, // Full message without truncation
-                bible_version: 'NIV',
-                registration_type: this.userInfo.type,
-                family_group_size: this.userInfo.familySize || (this.userInfo.type === 'family' ? '4' : null),
-                user_role: 'member',
-                depth: 'comprehensive',
-                tone: 'compassionate',
-                application: 'practical',
-                language: this.userInfo.language
-            },
-            query: message,
-            response_mode: 'blocking',
-            user: this.userInfo.name
-        };
+        // Simplified payload with ONLY the 4 variables Dify expects
+const payload = {
+    inputs: {
+        user_name: this.userInfo.name,
+        user_age: this.userInfo.age,
+        topic: message, // Keep full message without truncation
+        registration_type: this.userInfo.type
+    },
+    query: message,
+    response_mode: 'blocking',
+    user: this.userInfo.name
+};
         
         if (this.conversationId) {
             payload.conversation_id = this.conversationId;
