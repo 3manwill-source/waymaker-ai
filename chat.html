@@ -436,8 +436,8 @@ class WayMakerGroupChat {
     constructor() {
         console.log('🎯 Initializing WayMaker GroupChat...');
         
-        // ✅ FIXED: Updated to correct Dify API endpoint
-        this.apiUrl = 'https://waymaker-proxy.waymaker-ai.workers.dev/chat-messages';
+        // ✅ FIXED: Updated to correct Cloudflare Worker endpoint (no /chat-messages)
+        this.apiUrl = 'https://waymaker-proxy.waymaker-ai.workers.dev/';
         this.apiKey = 'app-baSinqrorYUcF4rJZk8qfbpv'; // NEW API key
         this.conversationId = null;
         this.currentMessageId = null;
