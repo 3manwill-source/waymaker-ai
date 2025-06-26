@@ -1972,7 +1972,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        chat = new WayMakerGroupChat();
+        window.chat = new WayMakerGroupChat();
+        
+        // Initialize admin extension
+        setTimeout(() => {
+            if (typeof initializeWayMakerAdmin === 'function') {
+                initializeWayMakerAdmin();
+            }
+        }, 500);
         
         const style = document.createElement('style');
         style.textContent = '.message:hover .message-actions { opacity: 1 !important; }';

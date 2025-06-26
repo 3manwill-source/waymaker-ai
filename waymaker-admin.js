@@ -268,18 +268,35 @@ class WayMakerAdminExtension {
 // Global admin instance
 let waymakerAdmin = null;
 
-// Auto-initialize when chat is ready
+// Initialize when both DOM and chat are ready
+function initializeWayMakerAdmin() {
+    if (window.chat && typeof window.chat.addMessageToUI === 'function') {
+        waymakerAdmin = new WayMakerAdminExtension(window.chat);
+        console.log('✅ WayMaker Admin Extension loaded successfully');
+        return true;
+    }
+    return false;
+}
+
+// Try initialization multiple times
 document.addEventListener('DOMContentLoaded', () => {
-    // Wait for chat instance to be ready
-    const initAdmin = () => {
-        if (window.chat || window.waymakerChat) {
-            const chatInstance = window.chat || window.waymakerChat;
-            waymakerAdmin = new WayMakerAdminExtension(chatInstance);
-            console.log('✅ WayMaker Admin Extension loaded');
-        } else {
-            setTimeout(initAdmin, 500);
-        }
-    };
+    console.log('🔧 DOM loaded, waiting for chat instance...');
     
-    setTimeout(initAdmin, 1000);
+    // Try immediately
+    if (initializeWayMakerAdmin()) return;
+    
+    // Try every 100ms for up to 5 seconds
+    let attempts = 0;
+    const maxAttempts = 50;
+    
+    const initInterval = setInterval(() => {
+        attempts++;
+        
+        if (initializeWayMakerAdmin()) {
+            clearInterval(initInterval);
+        } else if (attempts >= maxAttempts) {
+            clearInterval(initInterval);
+            console.warn('⚠️ Failed to initialize admin extension - chat instance not found');
+        }
+    }, 100);
 });
