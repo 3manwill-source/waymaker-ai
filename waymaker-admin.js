@@ -125,10 +125,19 @@ class WayMakerAdminExtension {
     addAdminControls() {
         if (!this.isAdmin()) return;
 
-        // Add admin panel to enhanced features
+        // Add admin panel to Enhanced Features section
         setTimeout(() => {
-            const enhancedFeatures = document.querySelector('.enhanced-features, [class*="Enhanced Features"]')?.parentElement;
-            if (enhancedFeatures && !document.getElementById('adminPanel')) {
+            // Find the Enhanced Features section by its content
+            const sidebarSections = document.querySelectorAll('.sidebar-section');
+            let enhancedFeaturesSection = null;
+            
+            sidebarSections.forEach(section => {
+                if (section.textContent.includes('Enhanced Features')) {
+                    enhancedFeaturesSection = section;
+                }
+            });
+            
+            if (enhancedFeaturesSection && !document.getElementById('adminPanel')) {
                 const adminPanel = document.createElement('div');
                 adminPanel.id = 'adminPanel';
                 adminPanel.className = 'p-2 border-b border-gray-600 bg-red-900/20';
@@ -155,9 +164,18 @@ class WayMakerAdminExtension {
                         </button>
                     </div>
                 `;
-                enhancedFeatures.appendChild(adminPanel);
+                
+                // Insert admin panel at the top of the enhanced features section
+                const firstChild = enhancedFeaturesSection.firstElementChild;
+                enhancedFeaturesSection.insertBefore(adminPanel, firstChild);
+                
+                console.log('✅ Admin panel added to Enhanced Features');
+            } else if (enhancedFeaturesSection) {
+                console.log('ℹ️ Admin panel already exists');
+            } else {
+                console.warn('⚠️ Enhanced Features section not found');
             }
-        }, 1000);
+        }, 2000); // Increased timeout to ensure DOM is ready
     }
 
     // Admin-specific methods
