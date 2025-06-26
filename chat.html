@@ -341,6 +341,266 @@
             margin: 0.5rem;
         }
 
+        /* Settings Panel Styling */
+        .settings-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .settings-panel {
+            background: #1f2937;
+            border: 2px solid #374151;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        .setting-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #374151;
+        }
+
+        .setting-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .setting-label {
+            color: #f9fafb;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .setting-description {
+            color: #9ca3af;
+            font-size: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .font-size-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .font-size-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #4b5563;
+            background: #374151;
+            color: #d1d5db;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+
+        .font-size-btn:hover {
+            border-color: #6b7280;
+            background: #4b5563;
+        }
+
+        .font-size-btn.active {
+            border-color: #3b82f6;
+            background: #1d4ed8;
+            color: white;
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 3rem;
+            height: 1.5rem;
+            background: #4b5563;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #3b82f6;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.25rem;
+            height: 1.25rem;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(1.5rem);
+        }
+
+        .preference-checkbox {
+            margin-right: 0.5rem;
+            transform: scale(1.2);
+        }
+
+        .preference-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+            color: #d1d5db;
+        }
+
+        .preference-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            justify-content: flex-end;
+        }
+
+        .settings-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .settings-btn.primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .settings-btn.primary:hover {
+            background: #1d4ed8;
+        }
+
+        .settings-btn.secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .settings-btn.secondary:hover {
+            background: #4b5563;
+        }
+
+        /* Font size classes */
+        .font-small { font-size: 0.75rem; }
+        .font-medium { font-size: 0.875rem; }
+        .font-large { font-size: 1rem; }
+        .font-xlarge { font-size: 1.125rem; }
+
+        /* Light theme classes */
+        .light-theme {
+            background: #f9fafb !important;
+            color: #111827 !important;
+        }
+
+        .light-theme .bg-gray-900 { background: #f9fafb !important; }
+        .light-theme .bg-gray-800 { background: #e5e7eb !important; }
+        .light-theme .bg-gray-700 { background: #d1d5db !important; }
+        .light-theme .text-white { color: #111827 !important; }
+        .light-theme .text-gray-300 { color: #374151 !important; }
+        .light-theme .border-gray-700 { border-color: #d1d5db !important; }
+        .light-theme .border-gray-600 { border-color: #9ca3af !important; }
+
+        /* Enhanced Font Size Controls */
+        .font-small .message-content { font-size: 0.75rem !important; line-height: 1.2; }
+        .font-small .compact-message { font-size: 0.7rem !important; }
+        .font-small .text-xs { font-size: 0.65rem !important; }
+        .font-small .text-sm { font-size: 0.75rem !important; }
+        
+        .font-medium .message-content { font-size: 0.875rem !important; line-height: 1.3; }
+        .font-medium .compact-message { font-size: 0.8rem !important; }
+        
+        .font-large .message-content { font-size: 1rem !important; line-height: 1.4; }
+        .font-large .compact-message { font-size: 0.95rem !important; }
+        .font-large .text-xs { font-size: 0.8rem !important; }
+        .font-large .text-sm { font-size: 0.9rem !important; }
+        
+        .font-xlarge .message-content { font-size: 1.125rem !important; line-height: 1.5; }
+        .font-xlarge .compact-message { font-size: 1.05rem !important; }
+        .font-xlarge .text-xs { font-size: 0.85rem !important; }
+        .font-xlarge .text-sm { font-size: 1rem !important; }
+        
+        /* Compact Mode Styling */
+        .compact-mode .message {
+            margin-bottom: 0.25rem !important;
+        }
+        
+        .compact-mode .message-content {
+            padding: 0.375rem 0.75rem !important;
+            line-height: 1.2 !important;
+        }
+        
+        .compact-mode .sidebar-section {
+            margin: 0.25rem !important;
+            padding: 0.5rem !important;
+        }
+        
+        .compact-mode .setting-group {
+            margin-bottom: 1rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+        
+        .compact-mode .welcome-banner {
+            padding: 0.25rem !important;
+            margin: 0.5rem !important;
+        }
+        
+        /* Light theme message styling */
+        .light-theme .message-content {
+            background: #ffffff !important;
+            border: 1px solid #e5e7eb !important;
+            color: #111827 !important;
+        }
+        
+        .light-theme .bg-blue-600 {
+            background: #2563eb !important;
+            color: white !important;
+        }
+        
+        .light-theme .bg-purple-600 {
+            background: #7c3aed !important;
+            color: white !important;
+        }
+        
+        .light-theme .settings-panel {
+            background: #ffffff !important;
+            border-color: #d1d5db !important;
+            color: #111827 !important;
+        }
+        
+        .light-theme .setting-label {
+            color: #111827 !important;
+        }
+        
+        .light-theme .preference-item {
+            color: #374151 !important;
+        }
+
         /* Optimized layout for better content visibility */
         .chat-container {
             height: 100vh;
@@ -411,11 +671,121 @@
                     <span class="user-badge" id="userTypeBadge">Individual</span>
                     <span class="user-badge" id="accessTierBadge">Basic</span>
                     <span class="api-status connected" id="apiStatus">✓ Connected</span>
+                    <button id="settingsBtn" class="user-badge bg-gray-600 hover:bg-gray-500 cursor-pointer" title="Settings">⚙️</button>
                     <button id="headerExitBtn" class="user-badge bg-red-500 hover:bg-red-600 cursor-pointer" title="Exit">🚪</button>
                 </div>
                 <div class="text-gray-400 text-xs mt-1">
                     <span id="sessionInfo">Session-based (No data stored)</span>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="settings-modal" style="display: none;">
+        <div class="settings-panel">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-white flex items-center gap-2">
+                    ⚙️ Settings Panel
+                </h2>
+                <button id="closeSettingsBtn" class="text-gray-400 hover:text-white text-2xl font-bold" title="Close Settings">
+                    ×
+                </button>
+            </div>
+
+            <!-- Font Size Controls -->
+            <div class="setting-group">
+                <label class="setting-label">📝 Font Size</label>
+                <div class="setting-description">
+                    Adjust text size for better readability in chat messages
+                </div>
+                <div class="font-size-buttons">
+                    <button class="font-size-btn" data-size="small">Small</button>
+                    <button class="font-size-btn active" data-size="medium">Medium</button>
+                    <button class="font-size-btn" data-size="large">Large</button>
+                    <button class="font-size-btn" data-size="xlarge">Extra Large</button>
+                </div>
+            </div>
+
+            <!-- Theme Toggle -->
+            <div class="setting-group">
+                <label class="setting-label">🌙 Theme</label>
+                <div class="setting-description">
+                    Switch between dark and light themes for comfortable viewing
+                </div>
+                <div class="theme-toggle">
+                    <span class="text-gray-300">Dark</span>
+                    <div class="toggle-switch" id="themeToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span class="text-gray-300">Light</span>
+                </div>
+            </div>
+
+            <!-- Notification Preferences -->
+            <div class="setting-group">
+                <label class="setting-label">🔔 Notifications</label>
+                <div class="setting-description">
+                    Configure how you receive notifications in the chat
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="soundNotifications" class="preference-checkbox" checked>
+                    <label for="soundNotifications">Sound notifications for new messages</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="joinLeaveNotifications" class="preference-checkbox" checked>
+                    <label for="joinLeaveNotifications">Show user join/leave notifications</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="typingIndicator" class="preference-checkbox" checked>
+                    <label for="typingIndicator">Show typing indicators</label>
+                </div>
+            </div>
+
+            <!-- Chat Preferences -->
+            <div class="setting-group">
+                <label class="setting-label">💬 Chat Behavior</label>
+                <div class="setting-description">
+                    Customize your chat experience and interface preferences
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="enterToSend" class="preference-checkbox" checked>
+                    <label for="enterToSend">Send message with Enter key</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="timestampDisplay" class="preference-checkbox" checked>
+                    <label for="timestampDisplay">Show message timestamps</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="compactMode" class="preference-checkbox">
+                    <label for="compactMode">Compact message display</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="autoScroll" class="preference-checkbox" checked>
+                    <label for="autoScroll">Auto-scroll to new messages</label>
+                </div>
+            </div>
+
+            <!-- Privacy & Data -->
+            <div class="setting-group">
+                <label class="setting-label">🔒 Privacy & Data</label>
+                <div class="setting-description">
+                    Control how your data is handled during the session
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="saveHistory" class="preference-checkbox" checked>
+                    <label for="saveHistory">Save conversation history locally</label>
+                </div>
+                <div class="preference-item">
+                    <input type="checkbox" id="shareAnalytics" class="preference-checkbox">
+                    <label for="shareAnalytics">Share anonymous usage analytics</label>
+                </div>
+            </div>
+
+            <!-- Settings Action Buttons -->
+            <div class="settings-buttons">
+                <button id="resetSettingsBtn" class="settings-btn secondary">Reset to Defaults</button>
+                <button id="saveSettingsBtn" class="settings-btn primary">Save Settings</button>
             </div>
         </div>
     </div>
@@ -530,8 +900,8 @@
             <!-- Enhanced Welcome Banner -->
             <div class="bg-blue-900/20 border-l-4 border-blue-400 welcome-banner m-2 rounded-r-lg">
                 <p class="text-xs text-blue-300">
-                    <strong>🌟 WayMaker AI Enhanced Community Chat!</strong> 
-                    <span id="welcomeMessage">Real-time biblical guidance with full editing capabilities and live Dify API connection!</span>
+                    <strong>🌟 WayMaker AI Community Chat</strong> 
+                    <span id="welcomeMessage">Where faith meets fellowship - your spiritual home online!</span>
                 </p>
             </div>
             
@@ -848,10 +1218,19 @@ class WayMakerGroupChat {
             this.newSessionBtn = document.getElementById('newSessionBtn');
             this.exitChatBtn = document.getElementById('exitChatBtn');
             this.headerExitBtn = document.getElementById('headerExitBtn');
+            this.settingsBtn = document.getElementById('settingsBtn');
             this.apiStatus = document.getElementById('apiStatus');
             this.apiStatusText = document.getElementById('apiStatusText');
             this.supabaseStatusText = document.getElementById('supabaseStatusText');
             this.lastApiCall = document.getElementById('lastApiCall');
+            
+            // Settings elements
+            this.settingsModal = document.getElementById('settingsModal');
+            this.closeSettingsBtn = document.getElementById('closeSettingsBtn');
+            this.saveSettingsBtn = document.getElementById('saveSettingsBtn');
+            this.resetSettingsBtn = document.getElementById('resetSettingsBtn');
+            this.themeToggle = document.getElementById('themeToggle');
+            this.fontSizeButtons = document.querySelectorAll('.font-size-btn');
             
             // Validate critical elements
             if (!this.messagesContainer) {
@@ -922,6 +1301,38 @@ class WayMakerGroupChat {
             
             if (this.headerExitBtn) {
                 this.headerExitBtn.onclick = () => this.exitChat();
+            }
+            
+            if (this.settingsBtn) {
+                this.settingsBtn.onclick = () => this.openSettings();
+            }
+            
+            if (this.closeSettingsBtn) {
+                this.closeSettingsBtn.onclick = () => this.closeSettings();
+            }
+            
+            if (this.saveSettingsBtn) {
+                this.saveSettingsBtn.onclick = () => this.saveSettings();
+            }
+            
+            if (this.resetSettingsBtn) {
+                this.resetSettingsBtn.onclick = () => this.resetSettings();
+            }
+            
+            if (this.themeToggle) {
+                this.themeToggle.onclick = () => this.toggleTheme();
+            }
+            
+            // Font size buttons
+            this.fontSizeButtons.forEach(btn => {
+                btn.onclick = () => this.setFontSize(btn.dataset.size);
+            });
+            
+            // Close settings when clicking outside
+            if (this.settingsModal) {
+                this.settingsModal.onclick = (e) => {
+                    if (e.target === this.settingsModal) this.closeSettings();
+                };
             }
             
             if (this.fileInput) {
@@ -1386,21 +1797,7 @@ class WayMakerGroupChat {
         try {
             console.log('👋 Adding welcome message...');
             
-            let welcome = `Peace be with you, ${this.userInfo.name}! 👋\n\nWelcome to WayMaker AI Enhanced Community Chat - now with full editing capabilities and live API connection! `;
-            
-            if (this.userInfo.type === 'family') {
-                welcome += `Families like yours find strength sharing biblical wisdom together.\n\n`;
-            } else if (this.userInfo.type === 'community_partner') {
-                welcome += `Thank you for your ministry leadership - your voice strengthens our community.\n\n`;
-            } else {
-                welcome += `Share your spiritual journey with our growing faith community.\n\n`;
-            }
-            
-            if (this.userInfo.access === 'equity') {
-                welcome += `🎁 You have Equity Access with enhanced community support.\n\n`;
-            }
-            
-            welcome += `✨ **ENHANCED FEATURES NOW AVAILABLE:**\n✏️ Edit & delete your messages\n🙏 Prayer requests with community sharing\n📖 Bible verse lookup and study\n🎤 Voice input and 🔊 text-to-speech\n📁 File upload for biblical analysis\n💾 Export conversations\n📜 Smart conversation history\n🔗 Live Dify API connection\n\nThis is a real-time group chat where everyone sees all messages. WayMaker AI responds to biblical questions and spiritual guidance requests.\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV`;
+            const welcome = `Peace be with you, ${this.userInfo.name}! 👋\n\nWelcome to WayMaker AI Community Chat - your place for real-time biblical guidance and spiritual fellowship.\n\nThis is a live group chat where our growing faith community shares wisdom, prayer requests, and spiritual encouragement together. WayMaker AI is here to provide biblical insights when you need guidance.\n\n"For where two or three gather in my name, there am I with them." - Matthew 18:20 NIV\n\nShare your spiritual journey with us - we're here to walk alongside you! 🙏`;
             
             this.addMessageToUI(welcome, 'assistant', 'WayMaker AI', true);
             console.log('✅ Welcome message added successfully');
@@ -2050,6 +2447,233 @@ const payload = {
             window.location.href = 'index.html';
         }
     }
+    
+    // ✨ SETTINGS PANEL FUNCTIONALITY ✨
+    
+    // Settings Management
+    loadSettings() {
+        try {
+            const saved = localStorage.getItem('waymaker_settings');
+            const defaults = {
+                fontSize: 'medium',
+                theme: 'dark',
+                soundNotifications: true,
+                joinLeaveNotifications: true,
+                typingIndicator: true,
+                enterToSend: true,
+                timestampDisplay: true,
+                compactMode: false,
+                autoScroll: true,
+                saveHistory: true,
+                shareAnalytics: false
+            };
+            
+            this.settings = saved ? { ...defaults, ...JSON.parse(saved) } : defaults;
+            this.applySettings();
+        } catch (error) {
+            console.error('❌ Error loading settings:', error);
+            this.resetToDefaults();
+        }
+    }
+    
+    
+    applySettings() {
+        try {
+            // Apply font size
+            this.setFontSize(this.settings.fontSize, false);
+            
+            // Apply theme
+            this.setTheme(this.settings.theme, false);
+            
+            // Apply checkbox preferences
+            const checkboxes = {
+                soundNotifications: 'soundNotifications',
+                joinLeaveNotifications: 'joinLeaveNotifications', 
+                typingIndicator: 'typingIndicator',
+                enterToSend: 'enterToSend',
+                timestampDisplay: 'timestampDisplay',
+                compactMode: 'compactMode',
+                autoScroll: 'autoScroll',
+                saveHistory: 'saveHistory',
+                shareAnalytics: 'shareAnalytics'
+            };
+            
+            Object.entries(checkboxes).forEach(([setting, id]) => {
+                const checkbox = document.getElementById(id);
+                if (checkbox) {
+                    checkbox.checked = this.settings[setting];
+                }
+            });
+            
+            // Apply compact mode class
+            if (this.settings.compactMode) {
+                document.body.classList.add('compact-mode');
+            }
+            
+            console.log('✅ Settings applied successfully');
+        } catch (error) {
+            console.error('❌ Error applying settings:', error);
+        }
+    }
+    
+    
+    openSettings() {
+        try {
+            if (this.settingsModal) {
+                this.settingsModal.style.display = 'flex';
+                // Load current settings into the UI
+                this.applySettings();
+            }
+        } catch (error) {
+            console.error('❌ Error opening settings:', error);
+        }
+    }
+    
+    
+    closeSettings() {
+        try {
+            if (this.settingsModal) {
+                this.settingsModal.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('❌ Error closing settings:', error);
+        }
+    }
+    
+    
+    saveSettings() {
+        try {
+            // Collect current settings from UI
+            const fontSize = document.querySelector('.font-size-btn.active')?.dataset.size || 'medium';
+            const theme = this.themeToggle?.classList.contains('active') ? 'light' : 'dark';
+            
+            this.settings = {
+                fontSize: fontSize,
+                theme: theme,
+                soundNotifications: document.getElementById('soundNotifications')?.checked || false,
+                joinLeaveNotifications: document.getElementById('joinLeaveNotifications')?.checked || false,
+                typingIndicator: document.getElementById('typingIndicator')?.checked || false,
+                enterToSend: document.getElementById('enterToSend')?.checked || false,
+                timestampDisplay: document.getElementById('timestampDisplay')?.checked || false,
+                compactMode: document.getElementById('compactMode')?.checked || false,
+                autoScroll: document.getElementById('autoScroll')?.checked || false,
+                saveHistory: document.getElementById('saveHistory')?.checked || false,
+                shareAnalytics: document.getElementById('shareAnalytics')?.checked || false
+            };
+            
+            // Save to localStorage
+            localStorage.setItem('waymaker_settings', JSON.stringify(this.settings));
+            
+            // Apply the settings
+            this.applySettings();
+            
+            // Close modal
+            this.closeSettings();
+            
+            // Show success notification
+            this.showNotification('✅ Settings saved successfully!', 'green');
+            
+            console.log('✅ Settings saved:', this.settings);
+        } catch (error) {
+            console.error('❌ Error saving settings:', error);
+            this.showNotification('❌ Error saving settings', 'red');
+        }
+    }
+    
+    
+    resetSettings() {
+        if (confirm('Reset all settings to defaults?\n\nThis will restore the original WayMaker AI chat experience.')) {
+            try {
+                localStorage.removeItem('waymaker_settings');
+                this.resetToDefaults();
+                this.showNotification('↩️ Settings reset to defaults', 'blue');
+            } catch (error) {
+                console.error('❌ Error resetting settings:', error);
+            }
+        }
+    }
+    
+    
+    resetToDefaults() {
+        this.settings = {
+            fontSize: 'medium',
+            theme: 'dark', 
+            soundNotifications: true,
+            joinLeaveNotifications: true,
+            typingIndicator: true,
+            enterToSend: true,
+            timestampDisplay: true,
+            compactMode: false,
+            autoScroll: true,
+            saveHistory: true,
+            shareAnalytics: false
+        };
+        this.applySettings();
+    }
+    
+    
+    setFontSize(size, save = true) {
+        try {
+            // Remove active class from all buttons
+            this.fontSizeButtons?.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to selected button
+            const selectedBtn = document.querySelector(`[data-size="${size}"]`);
+            if (selectedBtn) {
+                selectedBtn.classList.add('active');
+            }
+            
+            // Remove existing font size classes
+            document.body.classList.remove('font-small', 'font-medium', 'font-large', 'font-xlarge');
+            
+            // Add new font size class
+            document.body.classList.add(`font-${size}`);
+            
+            if (save) {
+                this.settings.fontSize = size;
+                localStorage.setItem('waymaker_settings', JSON.stringify(this.settings));
+                this.showNotification(`📝 Font size: ${size}`, 'blue');
+            }
+        } catch (error) {
+            console.error('❌ Error setting font size:', error);
+        }
+    }
+    
+    
+    toggleTheme() {
+        const currentTheme = this.settings?.theme || 'dark';
+        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        this.setTheme(newTheme, true);
+    }
+    
+    
+    setTheme(theme, save = true) {
+        try {
+            // Update toggle UI
+            if (this.themeToggle) {
+                if (theme === 'light') {
+                    this.themeToggle.classList.add('active');
+                } else {
+                    this.themeToggle.classList.remove('active');
+                }
+            }
+            
+            // Apply theme classes
+            if (theme === 'light') {
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+            }
+            
+            if (save) {
+                this.settings.theme = theme;
+                localStorage.setItem('waymaker_settings', JSON.stringify(this.settings));
+                this.showNotification(`🌙 Theme: ${theme}`, 'blue');
+            }
+        } catch (error) {
+            console.error('❌ Error setting theme:', error);
+        }
+    }
 }
 
 // Initialize enhanced group chat when page loads
@@ -2066,6 +2690,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         window.chat = new WayMakerGroupChat();
+        
+        // Load settings after chat initialization
+        setTimeout(() => {
+            if (window.chat) {
+                window.chat.loadSettings();
+            }
+        }, 1000);
         
         // Initialize admin extension
         setTimeout(() => {
