@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- WayMaker Admin Extension -->
+    <script src="waymaker-admin.js"></script>
     <style>
         /* Enhanced message styling with edit/delete functionality */
         .message:hover .message-actions {
@@ -1933,6 +1935,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         chat = new WayMakerGroupChat();
+        
+        // Initialize admin extension
+        if (typeof initializeAdminExtension === 'function') {
+            initializeAdminExtension(chat);
+        }
         
         const style = document.createElement('style');
         style.textContent = '.message:hover .message-actions { opacity: 1 !important; }';
