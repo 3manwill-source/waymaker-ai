@@ -61,17 +61,17 @@
         }
         
         .sidebar-full-height {
-            height: 100vh;
+            height: calc(100vh - 20px); /* Slightly less than full height */
             display: flex;
             flex-direction: column;
             overflow: hidden; /* Prevent sidebar itself from scrolling */
-            padding-bottom: 1rem; /* Add space at bottom */
+            padding: 10px 0; /* Add some top/bottom padding */
         }
         
         .sidebar-section.fill-remaining {
             flex: 0 0 auto !important; /* Don't grow to fill space */
-            max-height: 250px !important; /* Even smaller to ensure visibility */
-            min-height: 120px !important; /* Minimum usable height */
+            max-height: 200px !important; /* Smaller to fit better */
+            min-height: 100px !important; /* Minimum usable height */
             display: flex !important;
             flex-direction: column !important;
         }
@@ -80,7 +80,7 @@
             flex: 1 !important;
             overflow-y: auto !important;
             min-height: 0 !important;
-            max-height: 200px !important; /* Force smaller scrolling area */
+            max-height: 150px !important; /* Reduced to fit in viewport */
         }
         
         .compact-button {
@@ -353,12 +353,25 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            padding-bottom: 80px; /* Space for input area */
         }
         
         #messagesContainer {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
+            margin-bottom: 10px; /* Space above input */
+        }
+        
+        /* Input area positioning */
+        .input-area {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            left: 256px; /* Width of sidebar (w-64 = 256px) */
+            background: #1f2937;
+            border-top: 1px solid #374151;
+            z-index: 10;
         }
 
         .welcome-banner {
@@ -525,7 +538,7 @@
             <div id="messagesContainer" class="flex-1 overflow-y-auto p-3 space-y-2 messages-area"></div>
             
             <!-- Compact Input Area -->
-            <div class="border-t border-gray-700 bg-gray-800 p-2">
+            <div class="border-t border-gray-700 bg-gray-800 p-2 input-area">
                 <div class="flex gap-1 mb-2">
                     <div class="px-2 py-1 bg-gray-700 border border-gray-600 rounded text-xs text-gray-300" id="userInfoDisplay">
                         <span class="loading-spinner"></span> Initializing...
