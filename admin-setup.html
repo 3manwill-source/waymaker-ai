@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayMaker AI - Admin Setup</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            min-height: 100vh;
+        }
+        .admin-card {
+            backdrop-filter: blur(10px);
+            background: rgba(31, 41, 55, 0.8);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="admin-card rounded-lg p-8 max-w-md w-full">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-white mb-2">🔐 Admin Setup</h1>
+            <p class="text-gray-300 text-sm">One-time browser authentication for Kenneth</p>
+        </div>
+
+        <div id="setupForm" class="space-y-4">
+            <div>
+                <label class="block text-gray-300 text-sm font-medium mb-2">Admin Name</label>
+                <input type="text" id="adminName" 
+                       value="Kenneth" readonly
+                       class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+            </div>
+            
+            <div>
+                <label class="block text-gray-300 text-sm font-medium mb-2">Confirmation</label>
+                <input type="text" id="confirmName" 
+                       placeholder="Type 'Kenneth' to confirm"
+                       class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded text-white text-sm">
+            </div>
+
+            <button id="setupBtn" 
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors">
+                Enable Admin Access
+            </button>
+        </div>
+
+        <div id="successMessage" class="hidden text-center">
+            <div class="text-green-400 mb-4">
+                <div class="text-4xl mb-2">✅</div>
+                <h3 class="text-lg font-semibold">Admin Access Enabled!</h3>
+                <p class="text-sm text-gray-300 mt-2">Your browser is now configured for admin privileges.</p>
+            </div>
+            <a href="chat.html" 
+               class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded transition-colors">
+                Go to Chat
+            </a>
+        </div>
+
+        <div class="mt-6 p-3 bg-gray-800 rounded text-xs text-gray-400">
+            <h4 class="font-semibold text-gray-300 mb-1">Security Notes:</h4>
+            <ul class="space-y-1">
+                <li>• Device-specific authentication</li>
+                <li>• No network credentials transmitted</li>
+                <li>• Clear browser data to revoke access</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        class AdminSetup {
+            constructor() {
+                this.setupBtn = document.getElementById('setupBtn');
+                this.confirmName = document.getElementById('confirmName');
+                this.setupForm = document.getElementById('setupForm');
+                this.successMessage = document.getElementById('successMessage');
+                
+                this.init();
+            }
+
+            init() {
+                // Check if already setup
+                if (this.isAdminAlreadySetup()) {
+                    this.showSuccess();
+                    return;
+                }
+
+                this.setupBtn.addEventListener('click', () => this.setupAdmin());
+                this.confirmName.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.setupAdmin();
+                });
+            }
+
+            isAdminAlreadySetup() {
+                return localStorage.getItem('waymaker_admin_key') === 'kenneth_admin_2025';
+            }
+
+            setupAdmin() {
+                const confirmation = this.confirmName.value.trim();
+                
+                if (confirmation !== 'Kenneth') {
+                    this.showError('Please type "Kenneth" exactly to confirm');
+                    return;
+                }
+
+                try {
+                    // Set admin key in localStorage
+                    localStorage.setItem('waymaker_admin_key', 'kenneth_admin_2025');
+                    localStorage.setItem('waymaker_admin_setup_date', new Date().toISOString());
+                    
+                    console.log('✅ Admin setup completed successfully');
+                    this.showSuccess();
+                    
+                } catch (error) {
+                    console.error('❌ Admin setup failed:', error);
+                    this.showError('Setup failed. Please try again.');
+                }
+            }
+
+            showSuccess() {
+                this.setupForm.classList.add('hidden');
+                this.successMessage.classList.remove('hidden');
+            }
+
+            showError(message) {
+                // Simple error display
+                this.confirmName.classList.add('border-red-500');
+                this.confirmName.value = '';
+                this.confirmName.placeholder = message;
+                
+                setTimeout(() => {
+                    this.confirmName.classList.remove('border-red-500');
+                    this.confirmName.placeholder = 'Type "Kenneth" to confirm';
+                }, 3000);
+            }
+        }
+
+        // Initialize admin setup
+        new AdminSetup();
+    </script>
+</body>
+</html>
