@@ -2705,6 +2705,11 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 500);
         
+        // Initialize admin extension
+        if (typeof initializeAdminExtension === 'function') {
+            initializeAdminExtension(chat);
+        }
+        
         const style = document.createElement('style');
         style.textContent = '.message:hover .message-actions { opacity: 1 !important; }';
         document.head.appendChild(style);
