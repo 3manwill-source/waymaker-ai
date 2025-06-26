@@ -10,6 +10,14 @@
     <!-- WayMaker Admin Extension -->
     <script src="waymaker-admin.js"></script>
     <style>
+        /* Prevent entire page from scrolling */
+        html, body {
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+        
         /* Enhanced message styling with edit/delete functionality */
         .message:hover .message-actions {
             opacity: 1 !important;
@@ -61,18 +69,18 @@
         }
         
         .sidebar-section.fill-remaining {
-            flex: 0 0 auto; /* Don't grow to fill space */
-            max-height: 300px; /* Limit height to keep other sections visible */
-            min-height: 150px; /* Minimum usable height */
-            display: flex;
-            flex-direction: column;
+            flex: 0 0 auto !important; /* Don't grow to fill space */
+            max-height: 250px !important; /* Even smaller to ensure visibility */
+            min-height: 120px !important; /* Minimum usable height */
+            display: flex !important;
+            flex-direction: column !important;
         }
         
         .history-content {
-            flex: 1;
-            overflow-y: auto;
-            min-height: 0;
-            max-height: 250px; /* Ensure scrolling within limited space */
+            flex: 1 !important;
+            overflow-y: auto !important;
+            min-height: 0 !important;
+            max-height: 200px !important; /* Force smaller scrolling area */
         }
         
         .compact-button {
@@ -335,7 +343,22 @@
 
         /* Optimized layout for better content visibility */
         .chat-container {
-            height: calc(100vh - 75px);
+            height: 100vh;
+            overflow: hidden; /* Prevent container from scrolling */
+        }
+        
+        /* Ensure chat area uses remaining height and only messages scroll */
+        .chat-area {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        #messagesContainer {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .welcome-banner {
@@ -490,7 +513,7 @@
         </div>
         
         <!-- Chat Area -->
-        <div class="flex-1 flex flex-col bg-gray-900">
+        <div class="flex-1 chat-area bg-gray-900">
             <!-- Enhanced Welcome Banner -->
             <div class="bg-blue-900/20 border-l-4 border-blue-400 welcome-banner m-2 rounded-r-lg">
                 <p class="text-xs text-blue-300">
