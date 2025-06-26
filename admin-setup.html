@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WayMaker AI - Admin Setup</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #003049, #c78a44);
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .btn {
+            background: white;
+            color: #003049;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .success { color: #4CAF50; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛡️ WayMaker AI Admin Setup</h1>
+        <p>This page sets up admin privileges for Kenneth's browser.</p>
+        <button class="btn" onclick="setupAdmin()">Enable Admin Mode</button>
+        <p id="status"></p>
+        <a href="index.html" class="btn">Return to WayMaker AI</a>
+    </div>
+    
+    <script>
+        function setupAdmin() {
+            try {
+                localStorage.setItem('waymaker-admin-auth', 'kenneth-admin-verified-2024');
+                localStorage.setItem('waymaker-admin-setup-date', new Date().toISOString());
+                document.getElementById('status').innerHTML = 
+                    '<span class="success">✅ Admin mode enabled successfully!</span><br>' +
+                    'You can now enter "Kenneth" in WayMaker AI to get admin privileges.';
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    '<span style="color: #ff6b6b;">❌ Setup failed. Please enable localStorage.</span>';
+            }
+        }
+        
+        // Check if already set up
+        if (localStorage.getItem('waymaker-admin-auth')) {
+            document.getElementById('status').innerHTML = 
+                '<span class="success">✅ Admin mode already enabled.</span>';
+        }
+    </script>
+</body>
+</html>
