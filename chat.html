@@ -57,11 +57,13 @@
             display: flex;
             flex-direction: column;
             overflow: hidden; /* Prevent sidebar itself from scrolling */
+            padding-bottom: 1rem; /* Add space at bottom */
         }
         
         .sidebar-section.fill-remaining {
-            flex: 1;
-            min-height: 0; /* Important for flexbox scrolling */
+            flex: 0 0 auto; /* Don't grow to fill space */
+            max-height: 300px; /* Limit height to keep other sections visible */
+            min-height: 150px; /* Minimum usable height */
             display: flex;
             flex-direction: column;
         }
@@ -70,6 +72,7 @@
             flex: 1;
             overflow-y: auto;
             min-height: 0;
+            max-height: 250px; /* Ensure scrolling within limited space */
         }
         
         .compact-button {
