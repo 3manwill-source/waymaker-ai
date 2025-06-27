@@ -87,10 +87,10 @@
             max-height: 140px; /* ✅ REDUCED: Less space for user list */
         }
         
-        /* ✅ FIXED: Enhanced Features and other sections - much more compact to prevent overlap */
+        /* ✅ FIXED: Enhanced Features and other sections - better height to prevent overlap */
         .sidebar-section.fixed-size {
             flex-shrink: 0;
-            max-height: 80px; /* ✅ REDUCED: Much smaller to prevent overlap */
+            max-height: 120px; /* ✅ INCREASED: Better height to prevent overlap while fitting content */
         }
         
         /* ✅ FIXED: History section with visible borders when scrollable and better height */
@@ -101,13 +101,15 @@
             display: flex !important;
             flex-direction: column !important;
             overflow: hidden;
-            border: 2px solid transparent; /* ✅ ADDED: Border for scrollable indication */
+            border: 3px solid transparent; /* ✅ ENHANCED: Thicker border for better visibility */
+            border-radius: 8px; /* ✅ ADDED: Rounded corners for better appearance */
             transition: border-color 0.3s ease; /* ✅ ADDED: Smooth border transition */
         }
         
-        /* ✅ ADDED: Visible border when History is scrollable */
+        /* ✅ ENHANCED: More visible border when History is scrollable */
         .sidebar-section.fill-remaining.scrollable {
             border-color: #3b82f6; /* ✅ ADDED: Blue border when scrollable */
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); /* ✅ ADDED: Subtle glow effect */
         }
         
         .history-content {
@@ -261,14 +263,19 @@
             50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
         }
         
-        /* ✅ IMPROVED: Make message action icons always visible but subtle */
+        /* ✅ IMPROVED: Make message action icons visible with suggest icon always prominent */
         .message-action-icons {
-            opacity: 0.7;
+            opacity: 0.8; /* ✅ INCREASED: More visible by default */
             transition: opacity 0.3s ease;
         }
         
         .message:hover .message-action-icons {
             opacity: 1;
+        }
+        
+        /* ✅ ENHANCED: Suggest icon always visible and prominent for assistant messages */
+        .message-action-icons .suggest-icon {
+            opacity: 1 !important; /* ✅ ADDED: Always fully visible */
         }
         
         /* ✅ ADDED: Suggestions container styling */
