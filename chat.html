@@ -167,6 +167,25 @@
         .history-content::-webkit-scrollbar-thumb:hover {
             background: #9ca3af;
         }
+        
+        /* ✅ ADDED: History selection modal styling */
+        #historyModal {
+            backdrop-filter: blur(4px);
+        }
+        
+        .history-select-item {
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .history-select-item:hover {
+            border-left-color: #3b82f6;
+            transform: translateX(2px);
+        }
+        
+        .history-select-item:active {
+            background: #4b5563 !important;
+        }
 
         .compact-button {
             background: #374151;
@@ -1117,6 +1136,10 @@ class WayMakerGroupChat {
         this.userListRefreshTimer = null;
         this.lastUserListUpdate = null;
         
+        // ✅ ADDED: Typing indicator timer for safety
+        this.typingTimer = null;
+        this.isTypingShown = false;
+        
         // Initialization state
         this.isInitialized = false;
         this.initializationError = null;
@@ -2033,6 +2056,9 @@ class WayMakerGroupChat {
             // ✅ ADDED: Stop auto-refresh timer
             this.stopUserListAutoRefresh();
             
+            // ✅ ADDED: Clean up typing indicator
+            this.hideTypingSafe();
+            
             if (this.presenceChannel) {
                 this.presenceChannel.untrack();
                 this.presenceChannel.unsubscribe();
@@ -2126,21 +2152,107 @@ class WayMakerGroupChat {
         }
     }
     
+    // ✅ FIXED: Enhanced History category loading with better UX
     loadCategoryHistory(categoryKey, categoryTitle) {
         const items = this.historyCategories[categoryKey] || [];
         if (items.length === 0) {
-            alert(`No ${categoryTitle.toLowerCase()} history yet.`);
+            this.showNotification(`📜 No ${categoryTitle.toLowerCase()} history yet.`, 'gray');
             return;
         }
-        const historyText = items.map((item, index) => 
-            `${index + 1}. [${this.getTimeAgo(item.timestamp)}] ${item.preview}`
-        ).join('\n\n');
-        const userChoice = confirm(`${categoryTitle} History:\n\n${historyText}\n\nLoad one into input?`);
-        if (userChoice && items.length > 0) {
+        
+        // Create a selection interface instead of alert
+        this.showHistorySelectionModal(items, categoryTitle);
+    }
+    
+    // ✅ ADDED: History selection modal for better UX
+    showHistorySelectionModal(items, categoryTitle) {
+        try {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.id = 'historyModal';
+            
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.className = 'bg-gray-800 border border-gray-600 rounded-lg p-4 max-w-2xl w-full max-h-96 mx-4';
+            
+            modalContent.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-white font-semibold">📜 ${categoryTitle} History</h3>
+                    <button id="closeHistoryModal" class="text-gray-400 hover:text-white text-xl font-bold">×</button>
+                </div>
+                <div class="text-xs text-gray-400 mb-3">Click any item to load it into your chat input:</div>
+                <div class="space-y-2 max-h-64 overflow-y-auto" id="historyItems">
+                    ${items.map((item, index) => `
+                        <div class="history-select-item bg-gray-700 hover:bg-gray-600 p-3 rounded cursor-pointer transition-colors" data-index="${index}">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-xs text-gray-400">#${index + 1}</span>
+                                <span class="text-xs text-gray-500">${this.getTimeAgo(item.timestamp)}</span>
+                            </div>
+                            <div class="text-sm text-gray-200">${item.preview.length > 100 ? item.preview.substring(0, 100) + '...' : item.preview}</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="mt-4 flex justify-end gap-2">
+                    <button id="cancelHistoryModal" class="px-3 py-1 bg-gray-600 hover:bg-gray-500 text-white rounded text-sm">Cancel</button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Add event listeners
+            document.getElementById('closeHistoryModal').onclick = () => this.closeHistoryModal();
+            document.getElementById('cancelHistoryModal').onclick = () => this.closeHistoryModal();
+            
+            // Add click listeners to history items
+            document.querySelectorAll('.history-select-item').forEach(item => {
+                item.onclick = () => {
+                    const index = parseInt(item.dataset.index);
+                    this.loadHistoryItemToInput(items[index]);
+                    this.closeHistoryModal();
+                };
+            });
+            
+            // Close on background click
+            modal.onclick = (e) => {
+                if (e.target === modal) this.closeHistoryModal();
+            };
+            
+        } catch (error) {
+            console.error('❌ Error showing history selection modal:', error);
+        }
+    }
+    
+    // ✅ ADDED: Load history item directly to input
+    loadHistoryItemToInput(historyItem) {
+        try {
             if (this.messageInput) {
-                this.messageInput.value = items[0].preview;
+                this.messageInput.value = historyItem.preview;
                 this.messageInput.focus();
+                
+                // Move cursor to end
+                this.messageInput.setSelectionRange(
+                    this.messageInput.value.length, 
+                    this.messageInput.value.length
+                );
+                
+                this.showNotification(`📜 Loaded: "${historyItem.preview.substring(0, 30)}${historyItem.preview.length > 30 ? '...' : ''}"`, 'blue');
             }
+        } catch (error) {
+            console.error('❌ Error loading history item to input:', error);
+        }
+    }
+    
+    // ✅ ADDED: Close history modal
+    closeHistoryModal() {
+        try {
+            const modal = document.getElementById('historyModal');
+            if (modal) {
+                modal.remove();
+            }
+        } catch (error) {
+            console.error('❌ Error closing history modal:', error);
         }
     }
     
@@ -2216,11 +2328,12 @@ class WayMakerGroupChat {
             this.addToHistory(historyType, message, historyIcon);
             
             if (this.shouldWayMakerRespond(message)) {
-                this.showTyping();
+                // ✅ FIXED: Enhanced typing indicator with timeout safety
+                this.showTypingWithTimeout();
                 
                 try {
                     const response = await this.callDifyAPI(message);
-                    this.hideTyping();
+                    this.hideTypingSafe();
                     
                     if (response && response !== '(silence)') {
                         this.addMessageToUI(response, 'assistant', 'WayMaker AI', true);
@@ -2235,7 +2348,7 @@ class WayMakerGroupChat {
                         }
                     }
                 } catch (error) {
-                    this.hideTyping();
+                    this.hideTypingSafe();
                     console.error('❌ Dify API Error:', error);
                     const fallback = this.getFallbackResponse(message);
                     if (fallback !== '(silence)') {
@@ -2665,6 +2778,9 @@ const payload = {
             
             contentDiv.innerHTML = displayedText;
             
+            // ✅ ADDED: Ensure typing indicator is hidden when message completes
+            this.hideTypingSafe();
+            
             contentDiv.style.transform = 'scale(1.01)';
             setTimeout(() => {
                 contentDiv.style.transform = 'scale(1)';
@@ -2675,44 +2791,89 @@ const payload = {
         }
     }
     
-    showTyping() {
+    // ✅ FIXED: Enhanced typing indicator with timeout safety
+    showTypingWithTimeout() {
         try {
+            // Clear any existing typing indicator first
+            this.hideTypingSafe();
+            
+            console.log('🔄 Showing typing indicator...');
+            
             const typingDiv = document.createElement('div');
             typingDiv.id = 'typing';
-            typingDiv.className = 'flex justify-start';
+            typingDiv.className = 'flex justify-start message';
             typingDiv.innerHTML = 
                 '<div class="max-w-2xl">' +
-                    '<div class="p-2 bg-gray-800 border border-gray-700 rounded-xl">' +
+                    '<div class="flex justify-between items-center mb-1 text-xs text-gray-400">' +
+                        '<strong class="text-green-400">WayMaker AI</strong>' +
+                        '<span>' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) + '</span>' +
+                    '</div>' +
+                    '<div class="message-content p-2 bg-gray-800 text-gray-100 border border-gray-700 rounded-xl">' +
                         '<div class="flex items-center gap-2 text-gray-400 italic text-sm">' +
                             '<div class="flex gap-1">' +
                                 '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>' +
                                 '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>' +
                                 '<div class="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>' +
                             '</div>' +
-                            '<span>WayMaker AI is reflecting...</span>' +
+                            '<span>WayMaker AI is reflecting on your message...</span>' +
                         '</div>' +
                     '</div>' +
                 '</div>';
             
             if (this.messagesContainer) {
                 this.messagesContainer.appendChild(typingDiv);
-                // ✅ FIXED: Consistent scrolling for typing indicator
                 this.scrollToBottom();
+                this.isTypingShown = true;
+                
+                // Set timeout safety - auto-hide after 30 seconds
+                this.typingTimer = setTimeout(() => {
+                    console.log('⏰ Typing indicator timeout - auto-hiding');
+                    this.hideTypingSafe();
+                }, 30000);
+                
+                console.log('✅ Typing indicator shown successfully');
             }
         } catch (error) {
             console.error('❌ Error showing typing indicator:', error);
+            this.isTypingShown = false;
         }
     }
     
-    hideTyping() {
+    // ✅ FIXED: Safe typing indicator hiding with proper cleanup
+    hideTypingSafe() {
         try {
+            if (!this.isTypingShown) {
+                return; // Already hidden
+            }
+            
+            console.log('🛑 Hiding typing indicator...');
+            
+            // Clear timeout
+            if (this.typingTimer) {
+                clearTimeout(this.typingTimer);
+                this.typingTimer = null;
+            }
+            
+            // Remove typing div
             const typingDiv = document.getElementById('typing');
             if (typingDiv) {
                 typingDiv.remove();
+                console.log('✅ Typing indicator removed successfully');
             }
+            
+            this.isTypingShown = false;
         } catch (error) {
             console.error('❌ Error hiding typing indicator:', error);
         }
+    }
+    
+    // ✅ LEGACY: Keep old methods for compatibility
+    showTyping() {
+        this.showTypingWithTimeout();
+    }
+    
+    hideTyping() {
+        this.hideTypingSafe();
     }
     
     // Enhanced Feature Handlers
