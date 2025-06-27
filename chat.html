@@ -235,6 +235,39 @@
         
         .action-icon:nth-child(7) { background: #dc2626; } /* Delete - red */
         .action-icon:nth-child(7):hover { background: #b91c1c; }
+        
+        /* ✅ ADDED: Suggestions container styling */
+        .suggestions-container {
+            animation: fadeInUp 0.3s ease-out;
+            border-left: 3px solid #3b82f6;
+        }
+        
+        .suggestion-item {
+            border-left: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-item:hover {
+            border-left-color: #60a5fa;
+            transform: translateX(2px);
+            background: rgba(59, 130, 246, 0.1) !important;
+        }
+        
+        .suggestion-item:active {
+            transform: translateX(1px);
+            background: rgba(59, 130, 246, 0.2) !important;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
 
         .compact-button {
             background: #374151;
@@ -772,10 +805,10 @@
             color: #374151 !important;
         }
 
-        /* ✅ ADDED: Scroll-to-bottom button */
+        /* ✅ UPDATED: Scroll-to-bottom button positioning */
         .scroll-to-bottom {
             position: fixed;
-            bottom: 100px;
+            bottom: 160px; /* ✅ INCREASED: Move higher to avoid input area */
             right: 20px;
             width: 40px;
             height: 40px;
@@ -808,26 +841,28 @@
             overflow: hidden;
         }
         
-        /* ✅ FIXED: Chat area with proper height calculation */
+        /* ✅ FIXED: Chat area with proper height calculation to avoid input overlap */
         .chat-area {
             height: 100vh;
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            padding-bottom: 0; /* Remove any padding that might interfere */
         }
         
-        /* ✅ FIXED: Messages container with better spacing for input area */
+        /* ✅ FIXED: Messages container with extra large space for input area */
         #messagesContainer {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
             padding: 0.75rem;
-            padding-bottom: 140px; /* ✅ INCREASED: More space for input area */
+            padding-bottom: 220px; /* ✅ EXTRA LARGE INCREASE: Massive space for input area */
             scroll-behavior: smooth;
-            margin-bottom: 0; /* ✅ FIXED: Remove margin that was causing cutoff */
+            margin-bottom: 0;
+            box-sizing: border-box;
         }
         
-        /* ✅ FIXED: Input area with proper height calculation */
+        /* ✅ FIXED: Input area with explicit height and better positioning */
         .input-area {
             position: fixed;
             bottom: 0;
@@ -837,8 +872,10 @@
             border-top: 1px solid #374151;
             z-index: 10;
             box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-            padding: 1rem; /* ✅ INCREASED: More padding for better spacing */
-            min-height: 120px; /* ✅ ADDED: Ensure minimum height */
+            padding: 1rem;
+            min-height: 140px; /* ✅ INCREASED: Explicit minimum height */
+            max-height: 200px; /* ✅ ADDED: Maximum height to prevent overflow */
+            overflow: visible; /* ✅ ADDED: Ensure content is visible */
         }
 
         .welcome-banner {
@@ -2642,27 +2679,77 @@ const payload = {
         try {
             const messageEl = document.getElementById(messageId);
             const contentEl = messageEl?.querySelector('.message-content');
-            const content = contentEl?.textContent || '';
             
-            if (content) {
-                const suggestions = [
-                    "Can you elaborate on that biblical principle?",
-                    "What other scriptures relate to this topic?", 
-                    "How can I apply this to my daily life?",
-                    "What would Jesus do in this situation?",
-                    "Can you share a prayer about this?",
-                    "Are there any biblical examples of this?"
-                ];
-                
-                const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
-                
-                if (this.messageInput) {
-                    this.messageInput.value = randomSuggestion;
-                    this.messageInput.focus();
-                }
-                
-                this.showNotification("💡 Follow-up suggestion added to input", 'blue');
+            if (!messageEl || !contentEl) return;
+            
+            // Check if suggestions are already shown
+            const existingSuggestions = messageEl.querySelector('.suggestions-container');
+            if (existingSuggestions) {
+                existingSuggestions.remove();
+                this.showNotification("💡 Suggestions hidden", 'gray');
+                return;
             }
+            
+            const suggestions = [
+                "Can you elaborate on that biblical principle?",
+                "What other scriptures relate to this topic?", 
+                "How can I apply this to my daily life?",
+                "What would Jesus do in this situation?",
+                "Can you share a prayer about this?",
+                "Are there any biblical examples of this?",
+                "Can you explain this in simpler terms?",
+                "What does this mean for my daily walk with God?"
+            ];
+            
+            // Create suggestions container
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'suggestions-container mt-3 p-3 bg-blue-900/20 border border-blue-400/30 rounded-lg';
+            
+            suggestionsContainer.innerHTML = `
+                <div class="text-xs text-blue-300 mb-2 font-semibold flex items-center gap-1">
+                    💡 Suggested follow-up questions:
+                </div>
+                <div class="space-y-1">
+                    ${suggestions.map((suggestion, index) => `
+                        <div class="suggestion-item text-sm text-blue-200 hover:text-white cursor-pointer p-2 rounded hover:bg-blue-800/30 transition-colors"
+                             data-suggestion="${suggestion}" data-message-id="${messageId}">
+                            ${index + 1}. ${suggestion}
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="text-xs text-blue-400 mt-2 opacity-75">
+                    Click any suggestion to add it to your input box
+                </div>
+            `;
+            
+            // Insert suggestions after the message content
+            const messageWrapper = messageEl.querySelector('.max-w-2xl');
+            if (messageWrapper) {
+                messageWrapper.appendChild(suggestionsContainer);
+            }
+            
+            // Add click listeners to suggestions
+            suggestionsContainer.querySelectorAll('.suggestion-item').forEach(item => {
+                item.onclick = () => {
+                    const suggestion = item.dataset.suggestion;
+                    if (this.messageInput) {
+                        this.messageInput.value = suggestion;
+                        this.messageInput.focus();
+                        this.messageInput.setSelectionRange(suggestion.length, suggestion.length);
+                    }
+                    
+                    // Remove suggestions after selection
+                    suggestionsContainer.remove();
+                    
+                    this.showNotification(`💡 Added: "${suggestion.substring(0, 30)}..."`, 'blue');
+                };
+            });
+            
+            // Auto-scroll to show suggestions
+            this.scrollToBottom();
+            
+            this.showNotification("💡 Biblical follow-up suggestions shown below", 'blue');
+            
         } catch (error) {
             console.error('❌ Error suggesting follow-up:', error);
         }
