@@ -268,19 +268,18 @@
             50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
         }
         
-        /* ✅ FIXED: Make ALL action icons always visible */
+        /* ✅ FIXED: Make action icons only visible on hover */
         .message-action-icons {
-            opacity: 1 !important; /* ✅ CHANGED: Always fully visible */
+            opacity: 0; /* ✅ CHANGED: Hidden by default */
             transition: opacity 0.3s ease;
         }
         
         .message:hover .message-action-icons {
-            opacity: 1;
+            opacity: 1; /* ✅ Show on hover */
         }
         
-        /* ✅ ENHANCED: Suggest icon ALWAYS visible and extra prominent for assistant messages */
+        /* ✅ ENHANCED: Suggest icon visible on hover with special styling */
         .message-action-icons .suggest-icon {
-            opacity: 1 !important; /* ✅ ADDED: Always fully visible */
             position: relative !important;
             z-index: 10 !important; /* ✅ ADDED: Bring to front */
         }
@@ -1102,45 +1101,6 @@
                 <ul id="userList" class="space-y-0.5 compact-user-list px-2 pb-2"></ul>
             </div>
             
-            <!-- ✅ FIXED: Enhanced Features with fixed size -->
-            <div class="sidebar-section fixed-size">
-                <div class="p-2 border-b border-gray-600">
-                    <h4 class="font-semibold text-white mb-1 text-sm">Enhanced Features</h4>
-                    <div class="grid grid-cols-2 gap-1 text-xs">
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            ✏️ Edit
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            ❌ Delete
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            👍👎 Rate
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            ❓ Suggest
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            🔊 TTS
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            🎤 Voice
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            📁 Upload
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            📖 Study
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            💾 Export
-                        </div>
-                        <div class="px-2 py-1 bg-gray-600 hover:bg-gray-500 text-gray-200 rounded text-xs transition-colors cursor-default">
-                            🚪 Exit
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             <!-- ✅ FIXED: WayMaker AI Triggers with fixed size -->
             <div class="sidebar-section fixed-size">
                 <div class="p-2 border-b border-gray-600">
@@ -1165,18 +1125,6 @@
                             👥 Community
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- ✅ FIXED: Live API Status with fixed size -->
-            <div class="sidebar-section fixed-size">
-                <div class="p-2 border-b border-gray-600">
-                    <h4 class="font-semibold text-white mb-1 text-sm">🔗 Connection Status</h4>
-                    <ul class="text-xs text-gray-300 space-y-0.5">
-                        <li id="apiStatusText">🔄 Testing connection...</li>
-                        <li id="supabaseStatusText">🔄 Initializing real-time...</li>
-                        <li id="lastApiCall">Last response: Initializing...</li>
-                    </ul>
                 </div>
             </div>
             
@@ -1745,7 +1693,7 @@ class WayMakerGroupChat {
                 
                 switch(status) {
                     case 'connected':
-                        statusEl.textContent = '✓ Live API';
+                        statusEl.textContent = '✓ Live';
                         this.lastApiSuccess = new Date();
                         this.apiFailureCount = 0;
                         break;
