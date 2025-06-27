@@ -52,37 +52,122 @@
             font-weight: bold;
         }
         
-        /* Enhanced sidebar - full height coverage */
+        /* ✅ FIXED: Enhanced sidebar with proper layout distribution */
         .sidebar-section {
             background: #1f2937;
             border: 1px solid #374151;
             margin: 0.5rem;
             border-radius: 0.5rem;
+            flex-shrink: 0; /* ✅ ADDED: Prevent unwanted shrinking */
         }
         
         .sidebar-full-height {
-            height: calc(100vh - 20px); /* Slightly less than full height */
+            height: calc(100vh - 20px);
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Prevent sidebar itself from scrolling */
-            padding: 10px 0; /* Add some top/bottom padding */
+            overflow: hidden;
+            padding: 10px 0;
         }
         
+        /* ✅ FIXED: Community Members section with scroll limit */
+        .sidebar-section.community-members {
+            max-height: 280px; /* ✅ FIXED: Limit community section height */
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .community-members .p-2 {
+            flex-shrink: 0; /* ✅ ADDED: Header doesn't shrink */
+        }
+        
+        #userList {
+            flex: 1;
+            overflow-y: auto; /* ✅ ADDED: Scroll when too many users */
+            min-height: 60px; /* ✅ ADDED: Minimum space for users */
+            max-height: 200px; /* ✅ ADDED: Maximum before scroll */
+        }
+        
+        /* ✅ FIXED: Fixed-size sections for consistent layout */
+        .sidebar-section.fixed-size {
+            flex-shrink: 0; /* ✅ ADDED: Don't shrink these sections */
+        }
+        
+        /* ✅ FIXED: History section to fill remaining space properly */
         .sidebar-section.fill-remaining {
-            flex: 0 0 auto !important; /* Don't grow to fill space */
-            max-height: 200px !important; /* Smaller to fit better */
-            min-height: 100px !important; /* Minimum usable height */
+            flex: 1 1 auto !important; /* ✅ FIXED: Actually flex to fill space */
+            min-height: 120px !important; /* ✅ FIXED: Minimum usable height */
+            max-height: none !important; /* ✅ FIXED: Remove max-height restriction */
             display: flex !important;
             flex-direction: column !important;
+            overflow: hidden; /* ✅ ADDED: Contain overflow */
         }
         
         .history-content {
             flex: 1 !important;
             overflow-y: auto !important;
-            min-height: 0 !important;
-            max-height: 150px !important; /* Reduced to fit in viewport */
+            min-height: 0 !important; /* ✅ FIXED: Allow proper flexing */
+            max-height: none !important; /* ✅ FIXED: Remove max-height restriction */
+            padding: 0.5rem; /* ✅ ADDED: Proper padding */
         }
         
+        /* ✅ ADDED: Visual indicators for scrollable sections */
+        .community-members #userList::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .community-members #userList::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .community-members #userList::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 1px;
+        }
+        
+        .community-members #userList::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        
+        /* ✅ ADDED: Fade effect at bottom of community list when scrollable */
+        .community-members::after {
+            content: '';
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            height: 20px;
+            background: linear-gradient(transparent, #1f2937);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .community-members.scrollable::after {
+            opacity: 1;
+        }
+        
+        /* ✅ ADDED: Enhanced History section styling */
+        .history-content {
+            position: relative;
+        }
+        
+        .history-content::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .history-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .history-content::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 1px;
+        }
+        
+        .history-content::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
         .compact-button {
             background: #374151;
             color: #d1d5db;
@@ -843,9 +928,9 @@
         <!-- Enhanced Full-Height Sidebar -->
         <div class="w-64 bg-gray-800 border-r border-gray-700 sidebar-full-height">
             
-            <!-- Community Members -->
-            <div class="sidebar-section">
-                <div class="p-2 border-b border-gray-600">
+            <!-- ✅ FIXED: Community Members with scroll limit -->
+            <div class="sidebar-section community-members">
+                <div class="p-2 border-b border-gray-600 flex-shrink-0">
                     <div class="flex justify-between items-center mb-1">
                         <h3 class="font-semibold text-white text-sm">Community Members</h3>
                         <button id="manualRefreshBtn" class="text-xs text-gray-400 hover:text-white cursor-pointer" title="Refresh community list">
@@ -855,12 +940,12 @@
                     <div class="text-xs text-gray-500 mb-1" id="lastRefreshTime">
                         Auto-refresh: Starting...
                     </div>
-                    <ul id="userList" class="space-y-0.5 compact-user-list"></ul>
                 </div>
+                <ul id="userList" class="space-y-0.5 compact-user-list px-2 pb-2"></ul>
             </div>
             
-            <!-- Enhanced Features -->
-            <div class="sidebar-section">
+            <!-- ✅ FIXED: Enhanced Features with fixed size -->
+            <div class="sidebar-section fixed-size">
                 <div class="p-2 border-b border-gray-600">
                     <h4 class="font-semibold text-white mb-1 text-sm">Enhanced Features</h4>
                     <div class="grid grid-cols-2 gap-1 text-xs">
@@ -898,8 +983,8 @@
                 </div>
             </div>
             
-            <!-- WayMaker AI Triggers -->
-            <div class="sidebar-section">
+            <!-- ✅ FIXED: WayMaker AI Triggers with fixed size -->
+            <div class="sidebar-section fixed-size">
                 <div class="p-2 border-b border-gray-600">
                     <h4 class="font-semibold text-white mb-1 text-sm">WayMaker AI responds to:</h4>
                     <div class="grid grid-cols-2 gap-1 text-xs">
@@ -925,8 +1010,8 @@
                 </div>
             </div>
 
-            <!-- Live API Status -->
-            <div class="sidebar-section">
+            <!-- ✅ FIXED: Live API Status with fixed size -->
+            <div class="sidebar-section fixed-size">
                 <div class="p-2 border-b border-gray-600">
                     <h4 class="font-semibold text-white mb-1 text-sm">🔗 Connection Status</h4>
                     <ul class="text-xs text-gray-300 space-y-0.5">
@@ -937,12 +1022,12 @@
                 </div>
             </div>
             
-            <!-- Enhanced History Section - Fill Remaining Space -->
+            <!-- ✅ FIXED: Enhanced History Section - Flexes to fill remaining space -->
             <div class="sidebar-section fill-remaining">
-                <div class="p-2 border-b border-gray-600">
+                <div class="p-2 border-b border-gray-600 flex-shrink-0">
                     <h4 class="font-semibold text-white mb-2 flex items-center gap-1 text-sm">📜 History</h4>
                 </div>
-                <div class="history-content p-2">
+                <div class="history-content">
                     <div class="space-y-1" id="historyList">
                         <!-- Dynamic history items -->
                     </div>
@@ -1428,6 +1513,11 @@ class WayMakerGroupChat {
                 this.manualRefreshBtn.onclick = () => this.manualRefreshCommunity();
             }
             
+            // ✅ ADDED: Community list scroll detection
+            if (this.userList) {
+                this.userList.addEventListener('scroll', () => this.updateCommunityScrollIndicator());
+            }
+            
             console.log('✅ Event listeners attached successfully');
         } catch (error) {
             console.error('❌ Error attaching events:', error);
@@ -1663,6 +1753,7 @@ class WayMakerGroupChat {
         this.renderUserList(users);
     }
     
+    // ✅ ADDED: Enhanced user list rendering with scroll detection
     renderUserList(users) {
         if (!this.userList) return;
         
@@ -1692,7 +1783,40 @@ class WayMakerGroupChat {
             this.userList.appendChild(li);
         });
         
+        // ✅ ADDED: Detect if community list is scrollable and add visual indicator
+        this.updateCommunityScrollIndicator();
         this.updateCommunityCount(users.length);
+    }
+    
+    // ✅ ADDED: Update scroll indicator for community section
+    updateCommunityScrollIndicator() {
+        try {
+            if (!this.userList) return;
+            
+            const communitySection = this.userList.closest('.community-members');
+            if (!communitySection) return;
+            
+            // Check if content is scrollable
+            const isScrollable = this.userList.scrollHeight > this.userList.clientHeight;
+            
+            if (isScrollable) {
+                communitySection.classList.add('scrollable');
+            } else {
+                communitySection.classList.remove('scrollable');
+            }
+            
+            // Add scroll position indicator
+            if (isScrollable) {
+                const scrollPercentage = (this.userList.scrollTop / (this.userList.scrollHeight - this.userList.clientHeight)) * 100;
+                if (scrollPercentage > 10) {
+                    communitySection.classList.add('scrolled');
+                } else {
+                    communitySection.classList.remove('scrolled');
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error updating scroll indicator:', error);
+        }
     }
     
     // ✅ ADDED: Auto-refresh functionality for community members
