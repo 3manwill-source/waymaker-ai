@@ -69,9 +69,9 @@
             padding: 10px 0;
         }
         
-        /* ✅ FIXED: Community Members section with better height management */
+        /* ✅ FIXED: Community Members section with REDUCED height for more History space */
         .sidebar-section.community-members {
-            max-height: 220px; /* ✅ REDUCED: Less height for community to give History more space */
+            max-height: 150px; /* ✅ REDUCED: Much less height for community to give History more space */
             display: flex;
             flex-direction: column;
         }
@@ -87,29 +87,30 @@
             max-height: 140px; /* ✅ REDUCED: Less space for user list */
         }
         
-        /* ✅ FIXED: Enhanced Features and other sections - better height to prevent overlap */
+        /* ✅ FIXED: Enhanced Features and other sections - MUCH smaller to prevent overlap */
         .sidebar-section.fixed-size {
             flex-shrink: 0;
-            max-height: 120px; /* ✅ INCREASED: Better height to prevent overlap while fitting content */
+            max-height: 60px; /* ✅ REDUCED: Much smaller to prevent overlap completely */
+            overflow: hidden; /* ✅ ADDED: Hide overflow to prevent expansion */
         }
         
-        /* ✅ FIXED: History section with visible borders when scrollable and better height */
+        /* ✅ FIXED: History section with MORE space and visible borders when scrollable */
         .sidebar-section.fill-remaining {
             flex: 1 1 auto !important;
-            min-height: 280px !important; /* ✅ INCREASED: Better minimum height for History */
+            min-height: 400px !important; /* ✅ INCREASED: Much more minimum height for History */
             max-height: none !important;
             display: flex !important;
             flex-direction: column !important;
             overflow: hidden;
-            border: 3px solid transparent; /* ✅ ENHANCED: Thicker border for better visibility */
+            border: 4px solid transparent; /* ✅ ENHANCED: Even thicker border for better visibility */
             border-radius: 8px; /* ✅ ADDED: Rounded corners for better appearance */
             transition: border-color 0.3s ease; /* ✅ ADDED: Smooth border transition */
         }
         
-        /* ✅ ENHANCED: More visible border when History is scrollable */
+        /* ✅ ENHANCED: VERY visible border when History is scrollable */
         .sidebar-section.fill-remaining.scrollable {
-            border-color: #3b82f6; /* ✅ ADDED: Blue border when scrollable */
-            box-shadow: 0 0 8px rgba(59, 130, 246, 0.3); /* ✅ ADDED: Subtle glow effect */
+            border-color: #ef4444 !important; /* ✅ CHANGED: Red border for maximum visibility */
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.5) !important; /* ✅ ENHANCED: Stronger glow effect */
         }
         
         .history-content {
@@ -245,17 +246,21 @@
         .action-icon:nth-child(7) { background: #dc2626; } /* Delete - red */
         .action-icon:nth-child(7):hover { background: #b91c1c; }
         
-        /* ✅ ADDED: Special styling for suggest icon to make it more prominent */
+        /* ✅ ENHANCED: Make suggest icon MUCH more prominent */
         .suggest-icon {
             background: #f59e0b !important; /* Bright amber */
             animation: pulse-suggest 2s infinite;
-            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8) !important; /* ✅ STRONGER glow */
+            border: 2px solid #fbbf24 !important; /* ✅ ADDED: Bright border */
+            font-size: 1.2em !important; /* ✅ ADDED: Larger font size */
+            min-width: 32px !important; /* ✅ ADDED: Minimum width */
+            min-height: 32px !important; /* ✅ ADDED: Minimum height */
         }
         
         .suggest-icon:hover {
             background: #d97706 !important;
-            transform: scale(1.2);
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+            transform: scale(1.3) !important; /* ✅ INCREASED: Bigger hover effect */
+            box-shadow: 0 0 20px rgba(245, 158, 11, 1) !important; /* ✅ STRONGER hover glow */
         }
         
         @keyframes pulse-suggest {
@@ -263,9 +268,9 @@
             50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
         }
         
-        /* ✅ IMPROVED: Make message action icons visible with suggest icon always prominent */
+        /* ✅ FIXED: Make ALL action icons always visible */
         .message-action-icons {
-            opacity: 0.8; /* ✅ INCREASED: More visible by default */
+            opacity: 1 !important; /* ✅ CHANGED: Always fully visible */
             transition: opacity 0.3s ease;
         }
         
@@ -273,9 +278,11 @@
             opacity: 1;
         }
         
-        /* ✅ ENHANCED: Suggest icon always visible and prominent for assistant messages */
+        /* ✅ ENHANCED: Suggest icon ALWAYS visible and extra prominent for assistant messages */
         .message-action-icons .suggest-icon {
             opacity: 1 !important; /* ✅ ADDED: Always fully visible */
+            position: relative !important;
+            z-index: 10 !important; /* ✅ ADDED: Bring to front */
         }
         
         /* ✅ ADDED: Suggestions container styling */
