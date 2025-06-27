@@ -69,37 +69,38 @@
             padding: 10px 0;
         }
         
-        /* ✅ FIXED: Community Members section with scroll limit */
+        /* ✅ FIXED: Community Members section with better height management */
         .sidebar-section.community-members {
-            max-height: 280px; /* ✅ FIXED: Limit community section height */
+            max-height: 220px; /* ✅ REDUCED: Less height for community to give History more space */
             display: flex;
             flex-direction: column;
         }
         
         .community-members .p-2 {
-            flex-shrink: 0; /* ✅ ADDED: Header doesn't shrink */
+            flex-shrink: 0;
         }
         
         #userList {
             flex: 1;
-            overflow-y: auto; /* ✅ ADDED: Scroll when too many users */
-            min-height: 60px; /* ✅ ADDED: Minimum space for users */
-            max-height: 200px; /* ✅ ADDED: Maximum before scroll */
+            overflow-y: auto;
+            min-height: 60px;
+            max-height: 140px; /* ✅ REDUCED: Less space for user list */
         }
         
-        /* ✅ FIXED: Fixed-size sections for consistent layout */
+        /* ✅ FIXED: Enhanced Features and other sections - more compact */
         .sidebar-section.fixed-size {
-            flex-shrink: 0; /* ✅ ADDED: Don't shrink these sections */
+            flex-shrink: 0;
+            max-height: 120px; /* ✅ ADDED: Limit height of fixed sections */
         }
         
-        /* ✅ FIXED: History section to fill remaining space properly */
+        /* ✅ FIXED: History section with better minimum height */
         .sidebar-section.fill-remaining {
-            flex: 1 1 auto !important; /* ✅ FIXED: Actually flex to fill space */
-            min-height: 120px !important; /* ✅ FIXED: Minimum usable height */
-            max-height: none !important; /* ✅ FIXED: Remove max-height restriction */
+            flex: 1 1 auto !important;
+            min-height: 200px !important; /* ✅ INCREASED: Better minimum height for History */
+            max-height: none !important;
             display: flex !important;
             flex-direction: column !important;
-            overflow: hidden; /* ✅ ADDED: Contain overflow */
+            overflow: hidden;
         }
         
         .history-content {
@@ -186,6 +187,54 @@
         .history-select-item:active {
             background: #4b5563 !important;
         }
+        
+        /* ✅ ADDED: Message action icons styling */
+        .action-icon {
+            background: #4b5563;
+            color: #d1d5db;
+            border: none;
+            border-radius: 0.25rem;
+            padding: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-icon:hover {
+            background: #6b7280;
+            transform: scale(1.1);
+        }
+        
+        .message-action-icons {
+            justify-content: center;
+        }
+        
+        /* Specific icon colors */
+        .action-icon:nth-child(1) { background: #f59e0b; } /* Suggest - amber */
+        .action-icon:nth-child(1):hover { background: #d97706; }
+        
+        .action-icon:nth-child(2) { background: #059669; } /* Edit - emerald */
+        .action-icon:nth-child(2):hover { background: #047857; }
+        
+        .action-icon:nth-child(3) { background: #10b981; } /* Rate up - green */
+        .action-icon:nth-child(3):hover { background: #059669; }
+        
+        .action-icon:nth-child(4) { background: #ef4444; } /* Rate down - red */
+        .action-icon:nth-child(4):hover { background: #dc2626; }
+        
+        .action-icon:nth-child(5) { background: #8b5cf6; } /* TTS - violet */
+        .action-icon:nth-child(5):hover { background: #7c3aed; }
+        
+        .action-icon:nth-child(6) { background: #06b6d4; } /* Voice - cyan */
+        .action-icon:nth-child(6):hover { background: #0891b2; }
+        
+        .action-icon:nth-child(7) { background: #dc2626; } /* Delete - red */
+        .action-icon:nth-child(7):hover { background: #b91c1c; }
 
         .compact-button {
             background: #374151;
@@ -767,16 +816,18 @@
             overflow: hidden;
         }
         
-        /* ✅ FIXED: Messages container with proper scroll behavior */
+        /* ✅ FIXED: Messages container with better spacing for input area */
         #messagesContainer {
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
-            padding-bottom: 120px; /* ✅ FIXED: Extra space for input area */
-            scroll-behavior: smooth; /* ✅ ADDED: Smooth scrolling */
+            padding: 0.75rem;
+            padding-bottom: 140px; /* ✅ INCREASED: More space for input area */
+            scroll-behavior: smooth;
+            margin-bottom: 0; /* ✅ FIXED: Remove margin that was causing cutoff */
         }
         
-        /* ✅ FIXED: Input area positioning without overlap */
+        /* ✅ FIXED: Input area with proper height calculation */
         .input-area {
             position: fixed;
             bottom: 0;
@@ -785,7 +836,9 @@
             background: #1f2937;
             border-top: 1px solid #374151;
             z-index: 10;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3); /* ✅ ADDED: Shadow for separation */
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
+            padding: 1rem; /* ✅ INCREASED: More padding for better spacing */
+            min-height: 120px; /* ✅ ADDED: Ensure minimum height */
         }
 
         .welcome-banner {
@@ -2224,23 +2277,24 @@ class WayMakerGroupChat {
         }
     }
     
-    // ✅ ADDED: Load history item directly to input
+    // ✅ FIXED: Load history item as message in chat instead of input
     loadHistoryItemToInput(historyItem) {
         try {
-            if (this.messageInput) {
-                this.messageInput.value = historyItem.preview;
-                this.messageInput.focus();
-                
-                // Move cursor to end
-                this.messageInput.setSelectionRange(
-                    this.messageInput.value.length, 
-                    this.messageInput.value.length
-                );
-                
-                this.showNotification(`📜 Loaded: "${historyItem.preview.substring(0, 30)}${historyItem.preview.length > 30 ? '...' : ''}"`, 'blue');
-            }
+            // Add the history item as a message in the chat
+            const historyMessage = `📜 **History Loaded**: ${historyItem.type}\n\n${historyItem.preview}\n\n*Originally from: ${this.getTimeAgo(historyItem.timestamp)}*`;
+            
+            this.addMessageToUI(historyMessage, 'user', this.userInfo.name);
+            
+            // Also broadcast to other users
+            this.broadcastMessage(historyMessage, 'user', this.userInfo.name);
+            
+            this.showNotification(`📜 History loaded: "${historyItem.type}"`, 'blue');
+            
+            // Add to current session history
+            this.addToHistory('History Recall', historyItem.preview, '📜');
+            
         } catch (error) {
-            console.error('❌ Error loading history item to input:', error);
+            console.error('❌ Error loading history item to chat:', error);
         }
     }
     
@@ -2487,22 +2541,30 @@ const payload = {
             const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             const isUser = type === 'user';
             const isCurrentUser = sender === this.userInfo.name;
+            const isAssistant = type === 'assistant';
             
-            // Enhanced message with edit/delete functionality
+            // ✅ ADDED: Action icons for all messages
+            const actionIcons = `
+                <div class="message-action-icons flex gap-1 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    ${isAssistant ? '<button class="action-icon" onclick="chat.suggestFollowUp(\'' + messageId + '\')" title="Suggest follow-up">💡</button>' : ''}
+                    ${isCurrentUser ? '<button class="action-icon" onclick="chat.startEditMessage(\'' + messageId + '\')" title="Edit message">✏️</button>' : ''}
+                    <button class="action-icon" onclick="chat.rateMessage(\'' + messageId + '\', \'up\')" title="Rate helpful">👍</button>
+                    <button class="action-icon" onclick="chat.rateMessage(\'' + messageId + '\', \'down\')" title="Rate unhelpful">👎</button>
+                    <button class="action-icon" onclick="chat.textToSpeech(\'' + messageId + '\')" title="Text to speech">🔊</button>
+                    <button class="action-icon" onclick="chat.voiceReply(\'' + messageId + '\')" title="Voice reply">🎤</button>
+                    ${isCurrentUser ? '<button class="action-icon" onclick="chat.deleteMessage(\'' + messageId + '\')" title="Delete message">🗑️</button>' : ''}
+                </div>
+            `;
+            
+            // Enhanced message with action icons and edit/delete functionality
             messageDiv.innerHTML = 
                 '<div class="flex ' + (isCurrentUser ? 'justify-end' : 'justify-start') + '">' +
                     '<div class="max-w-2xl">' +
                         '<div class="flex justify-between items-center mb-1 text-xs text-gray-400">' +
                             '<strong class="text-' + (isUser ? (isCurrentUser ? 'yellow' : 'blue') : 'green') + '-400">' + sender + (isCurrentUser ? ' (you)' : '') + '</strong>' +
-                            '<div class="flex items-center gap-2">' +
-                                '<span>' + time + '</span>' +
-                                (isCurrentUser && isUser ? 
-                                    '<div class="message-actions flex gap-1 opacity-0">' +
-                                        '<button class="action-button edit" onclick="chat.startEditMessage(\'' + messageId + '\')">✏️</button>' +
-                                        '<button class="action-button delete" onclick="chat.deleteMessage(\'' + messageId + '\')">❌</button>' +
-                                    '</div>' : '') +
-                            '</div>' +
+                            '<span>' + time + '</span>' +
                         '</div>' +
+                        actionIcons +
                         '<div class="message-content compact-message p-2 rounded-xl whitespace-pre-wrap ' + 
                             (isUser ? (isCurrentUser ? 'bg-blue-600 text-white' : 'bg-purple-600 text-white') : 'bg-gray-800 text-gray-100 border border-gray-700') + '">' +
                             (shouldStream ? '' : content) +
@@ -2571,6 +2633,165 @@ const payload = {
     // ✅ FIXED: Manual scroll to bottom function
     forceScrollToBottom() {
         this.scrollToBottom(true);
+    }
+
+    
+    // ✅ ADDED: New message action functions
+    
+    suggestFollowUp(messageId) {
+        try {
+            const messageEl = document.getElementById(messageId);
+            const contentEl = messageEl?.querySelector('.message-content');
+            const content = contentEl?.textContent || '';
+            
+            if (content) {
+                const suggestions = [
+                    "Can you elaborate on that biblical principle?",
+                    "What other scriptures relate to this topic?", 
+                    "How can I apply this to my daily life?",
+                    "What would Jesus do in this situation?",
+                    "Can you share a prayer about this?",
+                    "Are there any biblical examples of this?"
+                ];
+                
+                const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+                
+                if (this.messageInput) {
+                    this.messageInput.value = randomSuggestion;
+                    this.messageInput.focus();
+                }
+                
+                this.showNotification("💡 Follow-up suggestion added to input", 'blue');
+            }
+        } catch (error) {
+            console.error('❌ Error suggesting follow-up:', error);
+        }
+    }
+    
+    rateMessage(messageId, rating) {
+        try {
+            const messageEl = document.getElementById(messageId);
+            if (!messageEl) return;
+            
+            // Visual feedback
+            const rateButtons = messageEl.querySelectorAll('.action-icon:nth-child(3), .action-icon:nth-child(4)');
+            rateButtons.forEach(btn => btn.style.opacity = '0.5');
+            
+            if (rating === 'up') {
+                const upButton = messageEl.querySelector('.action-icon:nth-child(3)');
+                if (upButton) {
+                    upButton.style.opacity = '1';
+                    upButton.style.background = '#10b981';
+                }
+                this.showNotification("👍 Message rated as helpful", 'green');
+            } else {
+                const downButton = messageEl.querySelector('.action-icon:nth-child(4)');
+                if (downButton) {
+                    downButton.style.opacity = '1';
+                    downButton.style.background = '#ef4444';
+                }
+                this.showNotification("👎 Message rated as unhelpful", 'red');
+            }
+            
+            // Add to history
+            this.addToHistory('Message Rating', `Rated message: ${rating}`, rating === 'up' ? '👍' : '👎');
+            
+        } catch (error) {
+            console.error('❌ Error rating message:', error);
+        }
+    }
+    
+    textToSpeech(messageId) {
+        try {
+            const messageEl = document.getElementById(messageId);
+            const contentEl = messageEl?.querySelector('.message-content');
+            const content = contentEl?.textContent || '';
+            
+            if ('speechSynthesis' in window && content) {
+                const utterance = new SpeechSynthesisUtterance(content);
+                utterance.rate = 0.8;
+                utterance.pitch = 1;
+                utterance.volume = 0.8;
+                
+                // Find a suitable voice
+                const voices = speechSynthesis.getVoices();
+                const preferredVoice = voices.find(voice => 
+                    voice.lang.startsWith('en') && (voice.name.includes('Female') || voice.name.includes('Google'))
+                );
+                if (preferredVoice) utterance.voice = preferredVoice;
+                
+                speechSynthesis.speak(utterance);
+                
+                this.showNotification("🔊 Speaking message...", 'purple');
+                
+                // Visual feedback
+                const ttsButton = messageEl.querySelector('.action-icon:nth-child(5)');
+                if (ttsButton) {
+                    ttsButton.style.background = '#8b5cf6';
+                    setTimeout(() => {
+                        ttsButton.style.background = '';
+                    }, 3000);
+                }
+            } else {
+                this.showNotification("🔊 Text-to-speech not available", 'gray');
+            }
+        } catch (error) {
+            console.error('❌ Error with text-to-speech:', error);
+            this.showNotification("❌ Text-to-speech error", 'red');
+        }
+    }
+    
+    voiceReply(messageId) {
+        try {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                const recognition = new SpeechRecognition();
+                
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    this.showNotification("🎤 Listening... Speak your reply", 'cyan');
+                    
+                    // Visual feedback
+                    const voiceButton = messageEl?.querySelector('.action-icon:nth-child(6)');
+                    if (voiceButton) {
+                        voiceButton.style.background = '#ef4444';
+                        voiceButton.textContent = '⏹️';
+                    }
+                };
+                
+                recognition.onresult = (event) => {
+                    const transcript = event.results[0][0].transcript;
+                    if (this.messageInput) {
+                        this.messageInput.value = transcript;
+                        this.messageInput.focus();
+                    }
+                    this.showNotification(`🎤 Voice captured: "${transcript.substring(0, 30)}..."`, 'cyan');
+                };
+                
+                recognition.onend = () => {
+                    // Reset button
+                    const voiceButton = document.getElementById(messageId)?.querySelector('.action-icon:nth-child(6)');
+                    if (voiceButton) {
+                        voiceButton.style.background = '';
+                        voiceButton.textContent = '🎤';
+                    }
+                };
+                
+                recognition.onerror = () => {
+                    this.showNotification("❌ Voice recognition error", 'red');
+                };
+                
+                recognition.start();
+            } else {
+                this.showNotification("🎤 Voice recognition not available", 'gray');
+            }
+        } catch (error) {
+            console.error('❌ Error with voice reply:', error);
+            this.showNotification("❌ Voice reply error", 'red');
+        }
     }
 
     // Enhanced Message Edit/Delete Functionality
