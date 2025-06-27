@@ -87,20 +87,27 @@
             max-height: 140px; /* ✅ REDUCED: Less space for user list */
         }
         
-        /* ✅ FIXED: Enhanced Features and other sections - more compact */
+        /* ✅ FIXED: Enhanced Features and other sections - much more compact to prevent overlap */
         .sidebar-section.fixed-size {
             flex-shrink: 0;
-            max-height: 120px; /* ✅ ADDED: Limit height of fixed sections */
+            max-height: 80px; /* ✅ REDUCED: Much smaller to prevent overlap */
         }
         
-        /* ✅ FIXED: History section with better minimum height */
+        /* ✅ FIXED: History section with visible borders when scrollable and better height */
         .sidebar-section.fill-remaining {
             flex: 1 1 auto !important;
-            min-height: 200px !important; /* ✅ INCREASED: Better minimum height for History */
+            min-height: 280px !important; /* ✅ INCREASED: Better minimum height for History */
             max-height: none !important;
             display: flex !important;
             flex-direction: column !important;
             overflow: hidden;
+            border: 2px solid transparent; /* ✅ ADDED: Border for scrollable indication */
+            transition: border-color 0.3s ease; /* ✅ ADDED: Smooth border transition */
+        }
+        
+        /* ✅ ADDED: Visible border when History is scrollable */
+        .sidebar-section.fill-remaining.scrollable {
+            border-color: #3b82f6; /* ✅ ADDED: Blue border when scrollable */
         }
         
         .history-content {
@@ -235,6 +242,34 @@
         
         .action-icon:nth-child(7) { background: #dc2626; } /* Delete - red */
         .action-icon:nth-child(7):hover { background: #b91c1c; }
+        
+        /* ✅ ADDED: Special styling for suggest icon to make it more prominent */
+        .suggest-icon {
+            background: #f59e0b !important; /* Bright amber */
+            animation: pulse-suggest 2s infinite;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+        }
+        
+        .suggest-icon:hover {
+            background: #d97706 !important;
+            transform: scale(1.2);
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.8);
+        }
+        
+        @keyframes pulse-suggest {
+            0%, 100% { box-shadow: 0 0 5px rgba(245, 158, 11, 0.5); }
+            50% { box-shadow: 0 0 15px rgba(245, 158, 11, 0.8); }
+        }
+        
+        /* ✅ IMPROVED: Make message action icons always visible but subtle */
+        .message-action-icons {
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+        }
+        
+        .message:hover .message-action-icons {
+            opacity: 1;
+        }
         
         /* ✅ ADDED: Suggestions container styling */
         .suggestions-container {
@@ -1631,6 +1666,12 @@ class WayMakerGroupChat {
                 this.userList.addEventListener('scroll', () => this.updateCommunityScrollIndicator());
             }
             
+            // ✅ ADDED: History content scroll detection for border visibility
+            const historyContent = document.querySelector('.history-content');
+            if (historyContent) {
+                historyContent.addEventListener('scroll', () => this.updateHistoryScrollIndicator());
+            }
+            
             console.log('✅ Event listeners attached successfully');
         } catch (error) {
             console.error('❌ Error attaching events:', error);
@@ -2220,6 +2261,33 @@ class WayMakerGroupChat {
             div.onclick = () => this.loadCategoryHistory(category.key, category.title);
             historyContainer.appendChild(div);
         });
+        
+        // ✅ ADDED: Check if History section is scrollable and add border
+        this.updateHistoryScrollIndicator();
+    }
+    
+    // ✅ ADDED: Update History scroll indicator 
+    updateHistoryScrollIndicator() {
+        try {
+            const historyContent = document.querySelector('.history-content');
+            const historySection = document.querySelector('.sidebar-section.fill-remaining');
+            
+            if (!historyContent || !historySection) return;
+            
+            // Check if content is scrollable
+            const isScrollable = historyContent.scrollHeight > historyContent.clientHeight;
+            
+            if (isScrollable) {
+                historySection.classList.add('scrollable');
+            } else {
+                historySection.classList.remove('scrollable');
+            }
+            
+            console.log('📜 History scroll detection:', { isScrollable, scrollHeight: historyContent.scrollHeight, clientHeight: historyContent.clientHeight });
+            
+        } catch (error) {
+            console.error('❌ Error updating History scroll indicator:', error);
+        }
     }
     
     getTimeAgo(timestamp) {
@@ -2580,10 +2648,10 @@ const payload = {
             const isCurrentUser = sender === this.userInfo.name;
             const isAssistant = type === 'assistant';
             
-            // ✅ ADDED: Action icons for all messages
+            // ✅ ADDED: Action icons for all messages (with suggest icon more prominent)
             const actionIcons = `
-                <div class="message-action-icons flex gap-1 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    ${isAssistant ? '<button class="action-icon" onclick="chat.suggestFollowUp(\'' + messageId + '\')" title="Suggest follow-up">💡</button>' : ''}
+                <div class="message-action-icons flex gap-1 mb-2 opacity-100 transition-opacity duration-200">
+                    ${isAssistant ? '<button class="action-icon suggest-icon" onclick="chat.suggestFollowUp(\'' + messageId + '\')" title="Get biblical follow-up suggestions">💡</button>' : ''}
                     ${isCurrentUser ? '<button class="action-icon" onclick="chat.startEditMessage(\'' + messageId + '\')" title="Edit message">✏️</button>' : ''}
                     <button class="action-icon" onclick="chat.rateMessage(\'' + messageId + '\', \'up\')" title="Rate helpful">👍</button>
                     <button class="action-icon" onclick="chat.rateMessage(\'' + messageId + '\', \'down\')" title="Rate unhelpful">👎</button>
